@@ -85,6 +85,7 @@ export default function PostItem({
         const targetScroll = getScrollTopForPost(index, openIndex) - offset;
 
         scrollFeed(targetScroll);
+        
     }, [isOpen, index, openIndex, getScrollTopForPost]);
 
 
