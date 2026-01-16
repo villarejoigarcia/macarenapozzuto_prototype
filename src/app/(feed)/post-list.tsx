@@ -61,6 +61,7 @@ export default function PostList({ posts }: { posts: any[] }) {
     }
 
     return (scrollVh / 100) * window.innerHeight;
+    
   }
 
 // 'use client';
