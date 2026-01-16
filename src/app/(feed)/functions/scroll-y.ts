@@ -1,6 +1,6 @@
 export function scrollFeed(
     target: number, 
-    duration = 1500
+    duration = 1000
 ) {
     const start = window.scrollY;
     const change = target - start;
