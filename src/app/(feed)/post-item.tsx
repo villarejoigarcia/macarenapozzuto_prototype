@@ -37,6 +37,19 @@ export default function PostItem({
     const isAnyOpen = openPost !== null;
     const isAnyActive = activePost !== null;
 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const check = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+
+        check(); // primera vez
+        window.addEventListener('resize', check);
+
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
     // const [scrollX, setScrollX] = useState(0);
 
     useEffect(() => {
@@ -117,12 +130,12 @@ export default function PostItem({
     // transitions
 
     const heightClass = isOpen
-        ? 'lg:h-[75vh] h-dvh'
+        ? 'lg:h-[75dvh] h-dvh'
         : isAnyOpen
-            ? 'h-[27.5vh]'
+            ? 'h-[27.5dvh]'
             : !isOpen && isActive
-                ? 'h-[33.333vh]'
-                : 'h-[27.5vh]';
+                ? 'h-[33.333dvh]'
+                : 'h-[27.5dvh]';
 
     const opacityClass =
         (isAnyOpen && !isOpen) || (isAnyActive && !isActive && !isOpen)
@@ -138,7 +151,7 @@ export default function PostItem({
             ? 'pointer-events-auto'
             : 'pointer-events-none';
 
-            const isDesktop = () => window.innerWidth >= 1024;
+//  
 
     // const mediaDelay =
     //     !isOpen && isAnyOpen
@@ -175,16 +188,15 @@ export default function PostItem({
                     //         if (!isOpen) scrollPost(postRef.current);
                     //     }
                     //     setIsHover(false);
-                    // }}
-                    
+                    // }}     
 
                     onMouseEnter={() => {
-                        if (!isDesktop()) return; // no activar hover en móvil
+                        if (isMobile) return;
                         setActivePost(post._id);
                         setIsHover(true);
                     }}
                     onMouseLeave={() => {
-                        if (!isDesktop()) return;
+                        if (isMobile) return;
                         setActivePost(null);
                         if (postRef.current && !isOpen) {
                             scrollPost(postRef.current);
@@ -209,11 +221,11 @@ export default function PostItem({
                             // const delay = `${i * 250}ms`;
                            
 
-const delay = !isDesktop
-    ? `${(post.images.length - i - 1) * 100}ms` // siempre mismo orden en móvil
-    : isHover || isOpen
-        ? `${i * 150}ms`  // orden normal en escritorio
-        : `${(post.images.length - i - 1) * 100}ms`; // orden inverso en escritorio
+                            const delay = isMobile
+                                ? `${(post.images.length - i - 1) * 50}ms` // mobile
+                                : isHover || isOpen
+                                    ? `${i * 150}ms`  // in desktop
+                                    : `${(post.images.length - i - 1) * 100}ms`; // out desktop
 
                             return (
                                 <img

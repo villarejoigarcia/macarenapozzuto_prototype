@@ -47,21 +47,21 @@ export default function PostList({ posts }: { posts: any[] }) {
   );
 }
 
-function getScrollTopForPost(
-  index: number,
-  openIndex: number | null
-) {
-  const close = 27.5;
-  const open = 75;
+  function getScrollTopForPost(
+    index: number,
+    openIndex: number | null
+  ) {
+    const close = 27.5;
+    const open = 75;
 
-  let scrollVh = 0;
+    let scrollVh = 0;
 
-  for (let i = 0; i < index; i++) {
-    scrollVh += i === openIndex ? open : close;
+    for (let i = 0; i < index; i++) {
+      scrollVh += i === openIndex ? open : close;
+    }
+
+    return (scrollVh / 100) * window.innerHeight;
   }
-
-  return (scrollVh / 100) * window.innerHeight;
-}
 
 // 'use client';
 
