@@ -93,4 +93,8 @@ body {
     right: 0;
   }
 
+    #blur.single::before {
+      height: 66.666vh;
+    }
+
 }

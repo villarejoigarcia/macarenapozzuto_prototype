@@ -66,35 +66,6 @@ export default function PostIndex({ posts }: PostIndexProps) {
     return (
         <>
             {/* index */}
-            {/* <nav
-                className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--lh) ${showOverflow ? 'overflow-visible' : 'overflow-hidden'} z-50 flex flex-col group`}
-                onMouseEnter={() => setType('single')}
-                onMouseLeave={() => {setType('')}} 
-                
-            >
-                {posts.map((p, i) => {
-                    const isActive = i === openIndex;
-                    const isHover = activePost === p._id;
-                    const groupHover = 'group-hover:h-(--lh) group-hover:pb-(--kv) group-hover:opacity-100';
-
-                    return (
-                        <div 
-                        key={p._id}
-                        className={`cursor-pointer box-content transition-height duration-666 ${isActive ? 'z-50 h-(--lh) opacity-100' : 'h-0 opacity-0'} ${groupHover}`}
-                        >
-                        <h1
-                            onClick={() => openByIndex(i)}
-                            onMouseEnter={() => setActivePost(p._id)}
-                            onMouseLeave={() => setActivePost(null)}
-                            className={`transition-opacity duration-666 ${isActive || isHover ? 'opacity-100' : 'opacity-30'}`}
-                        >
-                            {p.title}
-                        </h1>
-                        </div>
-                    );
-                })}
-            </nav> */}
-
             <nav
                 className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--lh) ${showOverflow ? 'overflow-visible' : 'overflow-hidden'} z-50 flex flex-col justify-end`}
                 onMouseEnter={() =>  {
@@ -117,7 +88,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
                         >
                             <h1
                                 onClick={() => {
-                                    setType('single'); // click activa blur en mobile
+                                    setType('single');
                                     openByIndex(i);
                                 }}
                                 onMouseEnter={() => setActivePost(p._id)}
