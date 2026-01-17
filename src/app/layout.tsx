@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from './components/header';
+import Blur from './components/blur';
+import { BlurProvider } from './context/blur-context';
+
 
 export const metadata: Metadata = {
   title: "Macarena Pozzuto",
@@ -12,11 +15,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+  const isAbout = false;
+
   return (
     <html lang="en">
       <body className="bg-black">
-        <Header />
-        {children}
+        <BlurProvider>
+          <Blur />
+          <Header />
+          {children}
+        </BlurProvider>
       </body>
     </html>
   );

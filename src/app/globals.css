@@ -39,3 +39,58 @@ body {
 *::-webkit-scrollbar {
   display: none;
 }
+
+/* blur */
+
+#blur {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	z-index: 9;
+}
+
+#blur::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	inset: 0;
+	-webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+	mask-image: linear-gradient(to bottom, rgb(11, 11, 11) 33.333%, transparent);
+	height: 5vh;
+	background-color: rgba(11, 11, 11, .15);
+	transition: .5s;
+}
+
+#blur.about::before,
+#blur.single::before {
+	-webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+	background-color: rgba(11, 11, 11, .666);
+}
+
+#blur.about::before {
+	height: 300vh;
+}
+
+#blur.single::before {
+	height: 100vh;
+}
+
+@media (max-width: 1024px) {
+
+  #blur {
+    top: auto;
+    bottom: 0;
+  }
+
+  #blur::before {
+    mask-image: linear-gradient(to top, #0b0b0b 33.333%, transparent);
+    top: auto;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+}

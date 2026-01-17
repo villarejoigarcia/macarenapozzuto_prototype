@@ -12,8 +12,8 @@ export default function Header() {
 
             <nav className='lg:flex-1 flex-0 flex gap-[.2em]'>
                 <Link className="after:content-[',']" href="/">Projects</Link>
-                <Link className="after:content-[',']" href="/about">About</Link>
-                <Link href="/about">Archive</Link>
+                <Link className="after:content-[',']" href="">About</Link>
+                <Link href="">Archive</Link>
             </nav>
         </header>
   );

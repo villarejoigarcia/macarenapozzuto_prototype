@@ -13,7 +13,7 @@ interface PostItemProps {
     activePost: string | null;
     setActivePost: (id: string | null) => void;
     openIndex: number | null;
-    getScrollTopForPost: (index: number, openIndex: number | null) => number;
+    getPostTop: (index: number, openIndex: number | null) => number;
 }
 
 export default function PostItem({
@@ -24,7 +24,7 @@ export default function PostItem({
     activePost,
     setActivePost,
     openIndex,
-    getScrollTopForPost,
+    getPostTop,
 
 }: PostItemProps) {
 
@@ -82,11 +82,11 @@ export default function PostItem({
         const isMobile = window.innerWidth < 1024; 
         const offset = isMobile ? 0 : window.innerHeight * 0.125;
 
-        const targetScroll = getScrollTopForPost(index, openIndex) - offset;
+        const targetScroll = getPostTop(index, openIndex) - offset;
 
         scrollFeed(targetScroll);
         
-    }, [isOpen, index, openIndex, getScrollTopForPost]);
+    }, [isOpen, index, openIndex, getPostTop]);
 
 
 

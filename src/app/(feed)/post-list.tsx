@@ -1,31 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import PostItem from './post-item';
+import { getPostTop } from './functions/post-top';
 
-export default function PostList({ posts }: { posts: any[] }) {
+interface PostListProps {
+  posts: any[];
 
-  const [activePost, setActivePost] = useState<string | null>(null);
-  const [openPost, setOpenPost] = useState<string | null>(null);
-  
-  const openIndex =
-    openPost === null
-      ? null
-      : posts.findIndex(post => post._id === openPost);
+  activePost: string | null;
+  setActivePost: (id: string | null) => void;
 
-  useEffect(() => {
-    if (openPost) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+  openPost: string | null;
+  setOpenPost: (id: string | null) => void;
 
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [openPost]);
+  openIndex: number | null;
+}
 
+export default function PostList({
+  posts,
+  activePost,
+  setActivePost,
+  openPost,
+  setOpenPost,
+  openIndex,
+}: PostListProps) {
   return (
+    
+    
     <section className="flex flex-col items-stretch overflow-hidden" id="feed">
       {posts.map((post, index) => (
         <PostItem
@@ -40,28 +40,12 @@ export default function PostList({ posts }: { posts: any[] }) {
           setOpenPost={setOpenPost}
 
           openIndex={openIndex}
-          getScrollTopForPost={getScrollTopForPost}
+          getPostTop={getPostTop}
         />
       ))}
     </section>
   );
 }
-
-  function getScrollTopForPost(
-    index: number,
-    openIndex: number | null
-  ) {
-    const close = 27.5;
-    const open = 75;
-
-    let scrollVh = 0;
-
-    for (let i = 0; i < index; i++) {
-      scrollVh += i === openIndex ? open : close;
-    }
-
-    return (scrollVh / 100) * window.innerHeight;
-  }
 
 // 'use client';
 
