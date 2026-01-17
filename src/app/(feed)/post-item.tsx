@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
+import { useBlur } from '../context/blur-context';
+
 
 interface PostItemProps {
     post: any;
@@ -38,6 +40,8 @@ export default function PostItem({
     const isAnyActive = activePost !== null;
 
     const [isMobile, setIsMobile] = useState(false);
+
+    const { setType } = useBlur();
 
     useEffect(() => {
         const check = () => {
@@ -110,6 +114,8 @@ export default function PostItem({
                 setActivePost(null);
                 window.history.pushState({}, '', '/');
             }
+
+            setType('');
         };
 
         // Función para detectar botón atrás/adelante

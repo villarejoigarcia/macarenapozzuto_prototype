@@ -12,6 +12,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
 
     const [openPost, setOpenPost] = useState<string | null>(null);
     const [activePost, setActivePost] = useState<string | null>(null);
+    const [openList, setOpenList] = useState(false);
     const { setType } = useBlur();
 
     const openIndex =
@@ -49,13 +50,27 @@ export default function PostIndex({ posts }: PostIndexProps) {
         }
     }, [openPost]);
 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const check = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+
+        check(); // primera vez
+        window.addEventListener('resize', check);
+
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
     return (
         <>
             {/* index */}
-            <nav
+            {/* <nav
                 className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--lh) ${showOverflow ? 'overflow-visible' : 'overflow-hidden'} z-50 flex flex-col group`}
                 onMouseEnter={() => setType('single')}
-                onMouseLeave={() => setType('')} 
+                onMouseLeave={() => {setType('')}} 
+                
             >
                 {posts.map((p, i) => {
                     const isActive = i === openIndex;
@@ -65,7 +80,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
                     return (
                         <div 
                         key={p._id}
-                        className={`cursor-pointer box-content transition-height duration-666 ${isActive ? 'h-(--lh) opacity-100' : 'h-0 opacity-0'} ${groupHover}`}
+                        className={`cursor-pointer box-content transition-height duration-666 ${isActive ? 'z-50 h-(--lh) opacity-100' : 'h-0 opacity-0'} ${groupHover}`}
                         >
                         <h1
                             onClick={() => openByIndex(i)}
@@ -75,6 +90,42 @@ export default function PostIndex({ posts }: PostIndexProps) {
                         >
                             {p.title}
                         </h1>
+                        </div>
+                    );
+                })}
+            </nav> */}
+
+            <nav
+                className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--lh) ${showOverflow ? 'overflow-visible' : 'overflow-hidden'} z-50 flex flex-col justify-end`}
+                onMouseEnter={() =>  {
+                    setType('single');
+                    setOpenList(true);
+                }}
+                onMouseLeave={() => {
+                    setType('')
+                    setOpenList(false);
+                }}
+            >
+                {posts.map((p, i) => {
+                    const isActive = i === openIndex;
+                    const isHover = activePost === p._id;
+
+                    return (
+                        <div
+                            key={p._id}
+                            className={`cursor-pointer box-content transition-height duration-666 ${isActive || openList ? 'h-(--lh) opacity-100 lg:pb-(--kv) lg:pt-0 pt-(--kv) last:pb-0' : 'h-0 pb-0 opacity-0'}`}
+                        >
+                            <h1
+                                onClick={() => {
+                                    setType('single'); // click activa blur en mobile
+                                    openByIndex(i);
+                                }}
+                                onMouseEnter={() => setActivePost(p._id)}
+                                onMouseLeave={() => setActivePost(null)}
+                                className={`transition-opacity duration-666 ${isActive || isHover ? 'opacity-100' : 'opacity-30'}`}
+                            >
+                                {p.title}
+                            </h1>
                         </div>
                     );
                 })}
