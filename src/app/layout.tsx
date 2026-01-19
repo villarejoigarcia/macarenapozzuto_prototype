@@ -28,7 +28,7 @@ const options = { next: { revalidate: 30 } };
           <Blur />
           <Header />
           {children}
-          <About />
+          {/* <About /> */}
           </AboutProvider>
         </BlurProvider>
       </body>
