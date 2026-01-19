@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Posts from './post-list';
-import { useBlur } from '../context/blur-context';
+import { useBlur } from '../../context/blur-context';
 
 interface PostIndexProps {
     posts: any[];
@@ -85,12 +85,13 @@ export default function PostIndex({ posts }: PostIndexProps) {
                         <div
                             key={p._id}
                             className={`cursor-pointer box-content transition-height duration-666 ${isActive || openList ? 'h-(--lh) opacity-100 lg:pb-(--kv) lg:pt-0 pt-(--kv) last:pb-0' : 'h-0 pb-0 opacity-0'}`}
-                        >
-                            <h1
-                                onClick={() => {
+                        onClick={() => {
                                     setType('single');
                                     openByIndex(i);
                                 }}
+                        >
+                            <h1
+                                
                                 onMouseEnter={() => setActivePost(p._id)}
                                 onMouseLeave={() => setActivePost(null)}
                                 className={`transition-opacity duration-666 ${isActive || isHover ? 'opacity-100' : 'opacity-30'}`}

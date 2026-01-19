@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
-import { useBlur } from '../context/blur-context';
+import { useBlur } from '../../context/blur-context';
 
 
 interface PostItemProps {
@@ -124,11 +124,11 @@ export default function PostItem({
             setActivePost(null);
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mouseup', handleClickOutside);
         window.addEventListener('popstate', handlePopState);
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('mouseup', handleClickOutside);
             window.removeEventListener('popstate', handlePopState);
         };
     }, [isOpen, setOpenPost, setActivePost]);

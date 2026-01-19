@@ -11,7 +11,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --kv: 8px;
-  --lh: calc(13px * 1.1);
+  --lh: calc(13px * 1.2);
+  --divider: calc(var(--lh)*5);
 }
 
 @media (prefers-color-scheme: dark) {
