@@ -13,13 +13,15 @@ export default function Header() {
 
       <nav className='lg:flex-1 flex-0 flex gap-[.2em]'>
 
-        <button
+        <a
           onClick={isOpen ? close : close}
           
           className={`cursor-pointer after:content-[','] transition duration-500
             ${isOpen ? 'opacity-33' : 'opacity-100'}`}
+
+            href="/"
         >Projects
-        </button>
+        </a>
 
         <button
           onClick={isOpen ? close : open}
