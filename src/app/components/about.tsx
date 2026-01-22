@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { PortableTextBlock } from '@sanity/types'
 import { PortableText } from '@portabletext/react'
 import { useBlur } from '../context/blur-context';
@@ -19,13 +19,14 @@ type AboutData = {
 
 type AboutProps = {
   data: AboutData; // el objeto que viene de Sanity
-  // onClose: () => void;
+  onClose: () => void;
 };
 
 export default function About({ data }: AboutProps) {
   // añadir clase sobre blur
   const { setType } = useBlur();
   const { isOpen, close } = useAbout();
+  const aboutRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,26 +36,46 @@ export default function About({ data }: AboutProps) {
     }
   }, [isOpen, setType]);
 
-   if (!isOpen) return null;
+  // close
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [close]);
 
-  // // cerrar con ESC
-  // useEffect(() => {
-  //   const onKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === 'Escape') onClose();
-  //   };
-  //   window.addEventListener('keydown', onKeyDown);
-  //   return () => window.removeEventListener('keydown', onKeyDown);
-  // }, [onClose]);
+  useEffect(() => {
+    if (!isOpen) return;
 
-  // if (!data) return null;
+    const handleClick = (e: MouseEvent) => {
+      if (!aboutRef.current) return;
+
+      if (e.target === aboutRef.current) {
+        close();
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => document.removeEventListener('click', handleClick);;
+  }, [close]);
 
   return (
 
+    // <section className="z-99 flex flex-col fixed inset-0 w-screen px-[calc(100%/3)] py-(--kv) h-screen gap-(--divider) overflow-scroll">
+    <section
+      ref={aboutRef}
+      className={`
+        z-99 fixed inset-0 w-screen h-dvh lg:px-[calc(100%/3)] px-(--kv) lg:py-(--kv) pb-(--kv) pt-[calc(var(--kv)+var(--lh)*2)] overflow-scroll flex flex-col gap-(--divider) transition duration-500 ease-in-out
+        ${isOpen
+          ? 'opacity-100 pointer-events-auto'
+          : 'opacity-0 pointer-events-none'}
+          `}
+    >
 
-    <section className="z-99 flex flex-col fixed inset-0 w-screen px-[calc(100%/3)] py-(--kv) h-screen gap-(--divider) overflow-scroll">
-      
       {data?.bio && (
-          <PortableText value={data?.bio} />
+        <PortableText value={data?.bio} />
       )}
 
       {data?.services && data?.services?.length > 0 && (
@@ -76,10 +97,22 @@ export default function About({ data }: AboutProps) {
       )}
 
       {data?.mail && data?.instagram && (
-        <div>
+        <div id="contact">
+
           <h2 className='mb-(--kv)'>Contact</h2>
-          <a href={`mailto:${data?.mail}`} className="block">{data?.mail}</a>
-          <a href={`https://www.instagram.com/${data?.instagram}`} target="_blank" className="block">@{data?.instagram}</a>
+
+          <a
+            href={`mailto:${data?.mail}`}
+            className="block text-(--link) w-fit transition duration-500">
+            {data?.mail}
+          </a>
+
+          <a
+            href={`https://www.instagram.com/${data?.instagram}`} target="_blank"
+            className="block text-(--link) w-fit transition duration-500">
+            @{data?.instagram}
+          </a>
+
         </div>
       )}
 

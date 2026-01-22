@@ -100,38 +100,29 @@ export default function PostItem({
         }
     }, [isOpen]);
 
-
+    
 
     useEffect(() => {
         if (!isOpen) return;
 
-        // Función para clicks fuera del post
-        const handleClickOutside = (e: MouseEvent) => {
-            if (!coverRef.current) return;
+        const handleClick = (e: MouseEvent) => {
+            if (!postRef.current) return;
 
-            if (!coverRef.current.contains(e.target as Node)) {
+            // SOLO click directo en el post-item (no hijos)
+            if (e.target === postRef.current) {
                 setOpenPost(null);
                 setActivePost(null);
                 window.history.pushState({}, '', '/');
+                setType('');
             }
-
-            setType('');
         };
 
-        // Función para detectar botón atrás/adelante
-        const handlePopState = () => {
-            setOpenPost(null);
-            setActivePost(null);
-        };
-
-        document.addEventListener('mouseup', handleClickOutside);
-        window.addEventListener('popstate', handlePopState);
+        document.addEventListener('click', handleClick);
 
         return () => {
-            document.removeEventListener('mouseup', handleClickOutside);
-            window.removeEventListener('popstate', handlePopState);
+            document.removeEventListener('click', handleClick);
         };
-    }, [isOpen, setOpenPost, setActivePost]);
+    }, [isOpen, setOpenPost, setActivePost, setType]);
 
     // transitions
 

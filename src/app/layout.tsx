@@ -6,6 +6,7 @@ import { BlurProvider } from './context/blur-context';
 import { AboutProvider } from './context/about-context';
 import About from './components/about';
 import { ABOUT_QUERY } from "././queries/about-query";
+import { client } from "../sanity/client";
 
 export const metadata: Metadata = {
   title: "Macarena Pozzuto",
@@ -18,17 +19,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-const options = { next: { revalidate: 30 } };
+  const options = { next: { revalidate: 30 } };
+  const aboutData = await client.fetch(ABOUT_QUERY, {}, options);
 
   return (
     <html lang="en">
       <body className="bg-black">
         <BlurProvider>
           <AboutProvider>
-          <Blur />
-          <Header />
-          {children}
-          {/* <About /> */}
+            <Blur />
+            <Header />
+            {children}
+            <About data={aboutData} />
           </AboutProvider>
         </BlurProvider>
       </body>
