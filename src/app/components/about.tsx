@@ -19,7 +19,6 @@ type AboutData = {
 
 type AboutProps = {
   data: AboutData; // el objeto que viene de Sanity
-  onClose: () => void;
 };
 
 export default function About({ data }: AboutProps) {
