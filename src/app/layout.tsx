@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { client } from "../sanity/client";
+
 import Header from './components/header';
 import Blur from './components/blur';
 import { BlurProvider } from './context/blur-context';
+
 import { AboutProvider } from './context/about-context';
 import About from './components/about';
 import { ABOUT_QUERY } from "././queries/about-query";
-import { client } from "../sanity/client";
+
+import Transition from './transition';
 
 export const metadata: Metadata = {
   title: "Macarena Pozzuto",
@@ -29,7 +33,9 @@ export default async function RootLayout({
           <AboutProvider>
             <Blur />
             <Header />
-            {children}
+            {/* <Transition> */}
+              {children}
+            {/* </Transition> */}
             <About data={aboutData} />
           </AboutProvider>
         </BlurProvider>

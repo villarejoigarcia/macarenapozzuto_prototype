@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
-import { useBlur } from '../../context/blur-context';
+import { useBlur } from '../context/blur-context';
 
 
 interface PostItemProps {
@@ -77,19 +77,19 @@ export default function PostItem({
     //     scrollFeed(targetScroll);
     // }, [isOpen, index, openIndex, getScrollTopForPost]);
 
-    
+
 
     useEffect(() => {
 
         if (!isOpen) return;
 
-        const isMobile = window.innerWidth < 1024; 
+        const isMobile = window.innerWidth < 1024;
         const offset = isMobile ? 0 : window.innerHeight * 0.125;
 
         const targetScroll = getPostTop(index, openIndex) - offset;
 
         scrollFeed(targetScroll);
-        
+
     }, [isOpen, index, openIndex, getPostTop]);
 
 
@@ -100,7 +100,7 @@ export default function PostItem({
         }
     }, [isOpen]);
 
-    
+
 
     useEffect(() => {
         if (!isOpen) return;
@@ -121,6 +121,24 @@ export default function PostItem({
 
         return () => {
             document.removeEventListener('click', handleClick);
+        };
+    }, [isOpen, setOpenPost, setActivePost, setType]);
+
+
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (isOpen) {
+                setOpenPost(null);
+                setActivePost(null);
+                setType('');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
         };
     }, [isOpen, setOpenPost, setActivePost, setType]);
 
@@ -148,7 +166,7 @@ export default function PostItem({
             ? 'pointer-events-auto'
             : 'pointer-events-none';
 
-//  
+    //  
 
     // const mediaDelay =
     //     !isOpen && isAnyOpen
@@ -216,7 +234,6 @@ export default function PostItem({
                     >
                         {post.images?.map((img: any, i: number) => {
                             // const delay = `${i * 250}ms`;
-                           
 
                             const delay = isMobile
                                 ? `${(post.images.length - i - 1) * 50}ms` // mobile

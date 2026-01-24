@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Posts from './post-list';
-import { useBlur } from '../../context/blur-context';
+import { useBlur } from '../context/blur-context';
 
 interface PostIndexProps {
     posts: any[];

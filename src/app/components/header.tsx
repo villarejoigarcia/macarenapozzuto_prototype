@@ -1,41 +1,51 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAbout } from '../context/about-context';
 
 export default function Header() {
+  const pathname = usePathname();
   const { open, close, isOpen } = useAbout();
+
+  const isProjects = pathname === '/';
+  const isArchive = pathname === '/archive';
 
   return (
     <header className="fixed top-0 left-0 lg:w-1/3 w-screen z-100 flex p-(--kv)">
-      <h1 className='flex-1'>Macarena Pozzuto</h1>
+      <h1 className="flex-1">Macarena Pozzuto</h1>
 
-      <nav className='lg:flex-1 flex-0 flex gap-[.2em]'>
+      <nav className="lg:flex-1 flex-0 flex gap-[.2em]">
 
-        <a
-          onClick={isOpen ? close : close}
-          
+        {/* projects */}
+        <Link
+          href="/"
+          onClick={close}
           className={`cursor-pointer after:content-[','] transition duration-500
-            ${isOpen ? 'opacity-33' : 'opacity-100'}`}
+            ${isProjects && !isOpen ? 'opacity-100' : 'opacity-33'}`}
+        >
+          Projects
+        </Link>
 
-            href="/"
-        >Projects
-        </a>
-
+        {/* about */}
         <button
           onClick={isOpen ? close : open}
-          
           className={`cursor-pointer after:content-[','] transition duration-500
             ${isOpen ? 'opacity-100' : 'opacity-33'}`}
-        >About
+        >
+          About
         </button>
 
-        <button
-          className={`cursor-pointer transition duration-500 opacity-33`}
-        >Archive
-        </button>
-        
+        {/* archive */}
+        <Link
+          href="/archive"
+          onClick={close}
+          className={`cursor-pointer transition duration-500
+            ${isArchive && !isOpen ? 'opacity-100' : 'opacity-33'}`}
+        >
+          Archive
+        </Link>
+
       </nav>
     </header>
   );
