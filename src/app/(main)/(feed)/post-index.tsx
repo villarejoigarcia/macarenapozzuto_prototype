@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Posts from './post-list';
-import { useBlur } from '../context/blur-context';
+import { useBlur } from '../../context/blur-context';
 
 interface PostIndexProps {
     posts: any[];
@@ -106,7 +106,6 @@ export default function PostIndex({ posts }: PostIndexProps) {
                             }}
                         >
                             <h1
-
                                 onMouseEnter={() => setActivePost(p._id)}
                                 onMouseLeave={() => setActivePost(null)}
                                 className={`transition-opacity duration-666 ${isActive || isHover ? 'opacity-100' : 'opacity-30'}`}

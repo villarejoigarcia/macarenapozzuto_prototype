@@ -10,7 +10,7 @@ import { AboutProvider } from './context/about-context';
 import About from './components/about';
 import { ABOUT_QUERY } from "././queries/about-query";
 
-import Transition from './transition';
+import Transition from './(main)/transition';
 
 export const metadata: Metadata = {
   title: "Macarena Pozzuto",
@@ -33,9 +33,9 @@ export default async function RootLayout({
           <AboutProvider>
             <Blur />
             <Header />
-            {/* <Transition> */}
+            <Transition>
               {children}
-            {/* </Transition> */}
+            </Transition>
             <About data={aboutData} />
           </AboutProvider>
         </BlurProvider>

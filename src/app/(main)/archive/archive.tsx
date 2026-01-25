@@ -37,7 +37,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
   return (
     <>
       {items.map((item) => (
-        <div key={item._id} className="grid grid-cols-6">
+        <div key={item._id} className="grid lg:grid-cols-6 grid-cols-2">
           {item.images.map((img, i) => (
             <img
               key={img.asset.url}

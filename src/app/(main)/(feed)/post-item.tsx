@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
-import { useBlur } from '../context/blur-context';
+import { useBlur } from '../../context/blur-context';
 
 
 interface PostItemProps {
@@ -103,17 +103,15 @@ export default function PostItem({
 
 
     useEffect(() => {
-        if (!isOpen) return;
-
         const handleClick = (e: MouseEvent) => {
-            if (!postRef.current) return;
+            const target = e.target as HTMLElement;
 
-            // SOLO click directo en el post-item (no hijos)
-            if (e.target === postRef.current) {
+            // click fuera de CUALQUIER post
+            if (e.target === target.closest('[data-post]')) {
                 setOpenPost(null);
                 setActivePost(null);
-                window.history.pushState({}, '', '/');
                 setType('');
+                window.history.pushState({}, '', '/');
             }
         };
 
@@ -122,7 +120,7 @@ export default function PostItem({
         return () => {
             document.removeEventListener('click', handleClick);
         };
-    }, [isOpen, setOpenPost, setActivePost, setType]);
+    }, [setOpenPost, setActivePost, setType]);
 
 
 
@@ -175,8 +173,9 @@ export default function PostItem({
 
     return (
 
-        <div className={`relative transition-all duration-1000 pb-[5px] last:pb-0 ${heightClass} ${opacityClass} ${hoverActiveClass}`}>
+        <div  className={`relative transition-all duration-1000 pb-[5px] last:pb-0 ${heightClass} ${opacityClass} ${hoverActiveClass}`}>
             <div
+            data-post
                 ref={postRef}
                 className={`flex flex-col items-center w-full h-full ${(isActive && !isAnyOpen) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
             >
