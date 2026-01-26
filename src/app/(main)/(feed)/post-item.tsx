@@ -155,7 +155,7 @@ export default function PostItem({
             ? 'opacity-30'
             : 'opacity-100';
 
-    const hoverActiveClass = isHover ? 'opacity-100' : 'opacity-30';
+    const hoverActiveClass = isHover ? 'opacity-100 last:mb-(--caption)' : 'opacity-30';
 
     const pointerEvents =
         (isHover || isOpen)
@@ -173,9 +173,9 @@ export default function PostItem({
 
     return (
 
-        <div  className={`relative transition-all duration-1000 pb-[5px] last:pb-0 ${heightClass} ${opacityClass} ${hoverActiveClass}`}>
+        <div className={`relative transition-all duration-1000 pb-[5px] last:pb-0 ${heightClass} ${opacityClass} ${hoverActiveClass}`}>
             <div
-            data-post
+                data-post
                 ref={postRef}
                 className={`flex flex-col items-center w-full h-full ${(isActive && !isAnyOpen) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
             >
@@ -184,13 +184,19 @@ export default function PostItem({
                     ref={coverRef}
                     className="relative h-full cursor-pointer"
                     onClick={() => {
-                        // setOpenPost(isOpen ? null : post._id);
-                        setOpenPost(post._id);
-                        if (postRef.current) {
-                            scrollPost(postRef.current);
+                        // Si el post ya está abierto, cerrarlo
+                        if (isOpen) {
+                            setOpenPost(null);
+                            setActivePost(null);
+                            window.history.pushState({}, '', '/');
+                        } else {
+                            // Si está cerrado, abrirlo
+                            setOpenPost(post._id);
+                            if (postRef.current) {
+                                scrollPost(postRef.current);
+                            }
+                            window.history.pushState({}, '', `/${post.slug.current}`);
                         }
-                        // window.history.pushState({}, '', isOpen ? '/' : `/${post.slug.current}`);
-                        window.history.pushState({}, '', `/${post.slug.current}`);
                     }}
                     // onMouseEnter={() => {
                     //     setActivePost(post._id);
@@ -238,7 +244,8 @@ export default function PostItem({
                                 ? `${(post.images.length - i - 1) * 50}ms` // mobile
                                 : isHover || isOpen
                                     ? `${i * 150}ms`  // in desktop
-                                    : `${(post.images.length - i - 1) * 100}ms`; // out desktop
+                                    : `${(post.images.length - i - 1) * 50}ms`; // out desktop
+                            // : `${i * 100}ms`;
 
                             return (
                                 <img
@@ -259,7 +266,7 @@ export default function PostItem({
 
             {/* text */}
             <div
-                className={`lg:absolute relative left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 ${isHover && !isAnyOpen ? 'opacity-100' : 'opacity-0'}`}
+                className={`lg:absolute relative left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 ${isHover && !isAnyOpen ? 'opacity-100 delay-500' : 'opacity-0'}`}
             >
                 <h2 className="flex-1">{index + 1}.</h2>
                 <h2 className="flex-1 grow-3">{post.title}</h2>

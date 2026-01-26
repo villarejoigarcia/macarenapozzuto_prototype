@@ -10,6 +10,8 @@ import { AboutProvider } from './context/about-context';
 import About from './components/about';
 import { ABOUT_QUERY } from "././queries/about-query";
 
+import { PostProvider } from './context/post-context';
+
 import Transition from './(main)/transition';
 
 export const metadata: Metadata = {
@@ -31,12 +33,14 @@ export default async function RootLayout({
       <body className="bg-black">
         <BlurProvider>
           <AboutProvider>
-            <Blur />
-            <Header />
-            <Transition>
-              {children}
-            </Transition>
-            <About data={aboutData} />
+            <PostProvider>
+              <Blur />
+              <Header />
+              <Transition>
+                {children}
+              </Transition>
+              <About data={aboutData} />
+            </PostProvider>
           </AboutProvider>
         </BlurProvider>
       </body>

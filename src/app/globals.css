@@ -15,6 +15,7 @@
   --lh: calc(13px * 1.2);
   --divider: calc(var(--lh)*3);
   --link: var(--link);
+  --caption: 31.6px;
 }
 
 @media (prefers-color-scheme: dark) {
