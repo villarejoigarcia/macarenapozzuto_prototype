@@ -63,7 +63,7 @@ body {
   backdrop-filter: blur(0);
 	mask-image: linear-gradient(to bottom, rgb(11, 11, 11) 33.333%, transparent);
 	height: 5vh;
-	background-color: rgba(11, 11, 11, .15);
+	background-color: rgba(11, 11, 11, .333);
 	transition: .666s;
 }
 
