@@ -72,7 +72,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           let scaleClass = 'scale-100 z-0';
 
           if (isZoomed) {
-            scaleClass = 'scale-200 z-[2]';
+            scaleClass = 'scale-200 z-[8]';
             opacityClass = 'opacity-100 cursor-zoom-out';
             blurClass = 'blur-none';
           } else if (zoomImg && isVisible) {
