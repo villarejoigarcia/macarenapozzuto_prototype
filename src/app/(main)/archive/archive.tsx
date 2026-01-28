@@ -143,7 +143,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   });
                 }}
               />
-              <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} whitespace-nowrap transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
+              <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
                 {fileName}
               </div>
             </div>
