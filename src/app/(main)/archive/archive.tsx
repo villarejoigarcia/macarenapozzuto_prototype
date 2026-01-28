@@ -70,31 +70,61 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           let opacityClass = 'opacity-0';
           let blurClass = 'blur-xs';
           let scaleClass = 'scale-100 z-0';
+          let zIndex = 'z-0 delay-0'
 
           if (isZoomed) {
-            scaleClass = 'scale-200 z-[8]';
+            scaleClass = 'scale-200';
             opacityClass = 'opacity-100 cursor-zoom-out';
             blurClass = 'blur-none';
+            zIndex = 'z-[8]';
           } else if (zoomImg && isVisible) {
-            opacityClass = 'opacity-30 cursor-zoom-in';
+            opacityClass = 'opacity-10 cursor-zoom-in';
             blurClass = 'blur-xs';
           } else if (!zoomImg && isVisible) {
             opacityClass = 'opacity-100 cursor-zoom-in';
             blurClass = 'blur-none';
+            zIndex = 'z-0 delay-500';
           }
 
-          // Determine origin class based on column index for desktop (6 columns)
           const column = index % 6;
-          const originClass = column < 3 ? 'origin-top-left' : 'origin-top-right';
+
+          let originClass = 'origin-center';
+
+          if (index < 6) {
+            originClass = 'origin-top';
+          } else {
+            if (column === 0) originClass = 'origin-[0%_50%]';
+            if (column === 5) originClass = 'origin-[100%_50%]';
+          }
+
+          const fileName = img.asset.url.split('/').pop();
 
           return (
-            <img
-              data-observe
+            // <img
+            //   data-observe
+            //   key={img.asset.url}
+            //   src={img.asset.url}
+            //   className={`w-full h-auto transition-all duration-500 ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
+            //   onClick={() => setZoomImg(prev => (prev === img.asset.url ? null : img.asset.url))}
+            // />
+
+            <div
               key={img.asset.url}
-              src={img.asset.url}
-              className={`w-full h-auto transition-all duration-500 ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
-              onClick={() => setZoomImg(prev => (prev === img.asset.url ? null : img.asset.url))}
-            />
+              className={`${zIndex}`}
+            >
+              <img
+                data-observe
+                src={img.asset.url}
+                className={`w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
+                onClick={() =>
+                  setZoomImg(prev => (prev === img.asset.url ? null : img.asset.url))
+                }
+              />
+                <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv) text-white mix-blend-difference`}>
+                  {fileName}
+                </div>
+            </div>
+
           );
         })}
       </div>
