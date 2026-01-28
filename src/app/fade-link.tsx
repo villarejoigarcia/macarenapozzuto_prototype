@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 interface FadeLinkProps {
   href: string;
   className?: string;
+  id?: string;
   children: React.ReactNode;
   onClick?: () => void;
 }
 
-export function FadeLink({ href, className, children, onClick }: FadeLinkProps) {
+export function FadeLink({ href, className, id, children, onClick }: FadeLinkProps) {
   const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -25,6 +26,7 @@ export function FadeLink({ href, className, children, onClick }: FadeLinkProps) 
   return (
     <a
       href={href}
+      id={id}
       onClick={handleClick}
       className={className}
     >

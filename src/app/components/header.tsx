@@ -23,6 +23,7 @@ export default function Header() {
         {/* projects */}
         <FadeLink
           href="/"
+          id="home"
           onClick={close}
           className={`cursor-pointer after:content-[','] transition duration-500
             ${isProjects && !isOpen ? 'opacity-100' : 'opacity-33'}`}

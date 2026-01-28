@@ -65,21 +65,6 @@ export default function PostItem({
         }
     }, [post._id, post.slug.current, setOpenPost]);
 
-    // useEffect(() => {
-    //     if (isOpen && postRef.current) {  
-    //         const rect = postRef.current.getBoundingClientRect();
-    //         const targetScroll = rect.top + window.scrollY - window.innerHeight * 0.125; // 25vh
-    //         console.log(targetScroll);
-    //         scrollFeed(targetScroll, 1000);
-    //     }
-    // }, [isOpen]);
-
-    // useEffect(() => {
-    //     if (!isOpen) return;
-    //     const targetScroll = getScrollTopForPost(index, openIndex) - window.innerHeight * .125;
-    //     scrollFeed(targetScroll);
-    // }, [isOpen, index, openIndex, getScrollTopForPost]);
-
 
 
     useEffect(() => {
@@ -109,8 +94,7 @@ export default function PostItem({
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
 
-            // click fuera de CUALQUIER post
-            if (e.target === target.closest('[data-post]')) {
+            if (e.target === target.closest('[data-post]') || (e.target as HTMLElement).id === 'home') {
                 setOpenPost(null);
                 setActivePost(null);
                 setType('');
