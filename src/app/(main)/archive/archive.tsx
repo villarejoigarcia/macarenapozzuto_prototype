@@ -86,21 +86,36 @@ export default function ArchiveList({ data }: ArchiveListProps) {
             zIndex = 'z-0 delay-500';
           }
 
-          const column = index % 6;
+          // desktop: 6 columns
+          const columnDesktop = index % 6;
+          // mobile: 2 columns
+          const columnMobile = index % 2;
 
           let originClass = 'origin-center';
 
-          if (index < 6) {
-  // primera fila
-  if (column === 0) originClass = 'origin-top-left';
-  else if (column === 5) originClass = 'origin-top-right';
-  else originClass = 'origin-top';
-} else {
-  // resto de filas
-  if (column === 0) originClass = 'origin-[0%_50%]';
-  else if (column === 5) originClass = 'origin-[100%_50%]';
-  else originClass = 'origin-center';
-}
+          // --- MOBILE ---
+          if (index < 2) {
+            // first mobile row
+            if (columnMobile === 0) originClass = 'origin-top-left';
+            else originClass = 'origin-top-right';
+          } else {
+            if (columnMobile === 0) originClass = 'origin-[0%_50%]';
+            else originClass = 'origin-[100%_50%]';
+          }
+
+          // --- DESKTOP OVERRIDE ---
+          if (window.innerWidth >= 1024) {
+            if (index < 6) {
+              // first desktop row
+              if (columnDesktop === 0) originClass = 'origin-top-left';
+              else if (columnDesktop === 5) originClass = 'origin-top-right';
+              else originClass = 'origin-top';
+            } else {
+              if (columnDesktop === 0) originClass = 'origin-[0%_50%]';
+              else if (columnDesktop === 5) originClass = 'origin-[100%_50%]';
+              else originClass = 'origin-center';
+            }
+          }
 
           const fileName = img.asset.url.split('/').pop();
 
@@ -128,9 +143,9 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   });
                 }}
               />
-                <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
-                  {fileName}
-                </div>
+              <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} whitespace-nowrap transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
+                {fileName}
+              </div>
             </div>
 
           );
