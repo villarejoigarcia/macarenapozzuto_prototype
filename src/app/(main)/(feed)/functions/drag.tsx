@@ -1,38 +1,107 @@
-'use client';
-import { useRef, useState } from 'react';
+import { useEffect } from 'react';
 
-export function Drag({ children }: { children: React.ReactNode }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+export function Drag(
+	ref: React.RefObject<HTMLElement>,
+	enabled: boolean
+) {
+	useEffect(() => {
+		if (!enabled || !ref.current) return;
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0));
-    setScrollLeft(scrollRef.current?.scrollLeft || 0);
-  };
+		const el = ref.current;
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
+		let isDragging = false;
+		let dragMoved = false;
+		let startX = 0;
+		let scrollStart = 0;
 
-  const handleMouseUpOrLeave = () => setIsDragging(false);
+		let velocity = 0;
+		let lastX = 0;
+		let lastTime = 0;
+		let rafId: number | null = null;
 
-  return (
-    <div
-      ref={scrollRef}
-      className="flex overflow-x-scroll cursor-grab select-none"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUpOrLeave}
-      onMouseLeave={handleMouseUpOrLeave}
-    >
-      {children}
-    </div>
-  );
+		const onMouseDown = (e: MouseEvent) => {
+			isDragging = true;
+			dragMoved = false;
+			startX = e.pageX;
+			scrollStart = el.scrollLeft;
+
+			lastX = e.pageX;
+			lastTime = performance.now();
+
+			if (rafId) {
+				cancelAnimationFrame(rafId);
+				rafId = null;
+			}
+		};
+
+		const onMouseMove = (e: MouseEvent) => {
+			if (!isDragging) return;
+
+			const dx = e.pageX - startX;
+			if (Math.abs(dx) > 5) dragMoved = true;
+
+			el.scrollLeft = scrollStart - dx;
+
+			const now = performance.now();
+			const deltaX = e.pageX - lastX;
+			const deltaTime = now - lastTime;
+
+			if (deltaTime > 0) {
+				velocity = deltaX / deltaTime;
+			}
+
+			lastX = e.pageX;
+			lastTime = now;
+		};
+
+		const startInertia = () => {
+			const friction = 0.95;
+
+			const step = () => {
+				if (Math.abs(velocity) < 0.01) {
+					velocity = 0;
+					rafId = null;
+					return;
+				}
+
+				el.scrollLeft -= velocity * 16;
+				velocity *= friction;
+				rafId = requestAnimationFrame(step);
+			};
+
+			rafId = requestAnimationFrame(step);
+		};
+
+		const onMouseUp = () => {
+			if (isDragging) {
+				isDragging = false;
+				startInertia();
+			}
+		};
+
+		const onClick = (e: MouseEvent) => {
+			if (dragMoved) {
+				e.preventDefault();
+				e.stopPropagation();
+				dragMoved = false;
+			}
+		};
+
+		el.querySelectorAll('img').forEach(img => {
+			img.setAttribute('draggable', 'false');
+		});
+
+		el.addEventListener('mousedown', onMouseDown);
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+		el.addEventListener('click', onClick, true);
+
+		return () => {
+			if (rafId) cancelAnimationFrame(rafId);
+			el.removeEventListener('mousedown', onMouseDown);
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+			el.removeEventListener('click', onClick, true);
+		};
+	}, [ref, enabled]);
 }

@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
+import { Drag } from './functions/drag';
 import { useBlur } from '../../context/blur-context';
+import { VerticalScroll } from './functions/vertical-scroll';
 
 
 interface PostItemProps {
@@ -39,9 +41,9 @@ export default function PostItem({
     const isAnyOpen = openPost !== null;
     const isAnyActive = activePost !== null;
 
-    const [isMobile, setIsMobile] = useState(false);
-
     const { setType } = useBlur();
+
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         const check = () => {
@@ -54,7 +56,8 @@ export default function PostItem({
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    // const [scrollX, setScrollX] = useState(0);
+    Drag(postRef as React.RefObject<HTMLElement>, !isMobile && (isHover || isOpen));
+    VerticalScroll(postRef as React.RefObject<HTMLElement>, isOpen);
 
     useEffect(() => {
         if (window.location.pathname === `/${post.slug.current}`) {
@@ -155,7 +158,7 @@ export default function PostItem({
             ? 'opacity-30'
             : 'opacity-100';
 
-    const hoverActiveClass = isHover ? 'opacity-100 last:mb-(--caption)' : 'opacity-30';
+    const hoverActiveClass = isHover && !isOpen ? 'opacity-100 last:mb-(--caption)' : 'opacity-30';
 
     const pointerEvents =
         (isHover || isOpen)
