@@ -73,7 +73,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           let zIndex = 'z-0 delay-0'
 
           if (isZoomed) {
-            scaleClass = 'scale-200';
+            scaleClass = 'scale-150';
             opacityClass = 'opacity-100';
             blurClass = 'blur-none';
             zIndex = 'z-[8]';
@@ -130,18 +130,24 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
             <div
               key={img.asset.url}
-              className={`${zIndex}`}
+              className={`${zIndex} cursor-pointer`}
+              onClick={() => {
+                  setZoomImg((prev) => {
+                    if (prev) return null;
+                    return img.asset.url;
+                  });
+                }}
             >
               <img
                 data-observe
                 src={img.asset.url}
-                className={`cursor-pointer w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
-                onClick={() => {
-                  setZoomImg((prev) => {
-                    if (prev) return null; // if something is open, just close it
-                    return img.asset.url; // otherwise open clicked image
-                  });
-                }}
+                className={`w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
+                // onClick={() => {
+                //   setZoomImg((prev) => {
+                //     if (prev) return null;
+                //     return img.asset.url;
+                //   });
+                // }}
               />
               <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
                 {fileName}
