@@ -74,14 +74,14 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
           if (isZoomed) {
             scaleClass = 'scale-200';
-            opacityClass = 'opacity-100 cursor-zoom-out';
+            opacityClass = 'opacity-100';
             blurClass = 'blur-none';
             zIndex = 'z-[8]';
           } else if (zoomImg && isVisible) {
-            opacityClass = 'opacity-10 cursor-zoom-in';
+            opacityClass = 'opacity-10';
             blurClass = 'blur-xs';
           } else if (!zoomImg && isVisible) {
-            opacityClass = 'opacity-100 cursor-zoom-in';
+            opacityClass = 'opacity-100';
             blurClass = 'blur-none';
             zIndex = 'z-0 delay-500';
           }
@@ -91,11 +91,16 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           let originClass = 'origin-center';
 
           if (index < 6) {
-            originClass = 'origin-top';
-          } else {
-            if (column === 0) originClass = 'origin-[0%_50%]';
-            if (column === 5) originClass = 'origin-[100%_50%]';
-          }
+  // primera fila
+  if (column === 0) originClass = 'origin-top-left';
+  else if (column === 5) originClass = 'origin-top-right';
+  else originClass = 'origin-top';
+} else {
+  // resto de filas
+  if (column === 0) originClass = 'origin-[0%_50%]';
+  else if (column === 5) originClass = 'origin-[100%_50%]';
+  else originClass = 'origin-center';
+}
 
           const fileName = img.asset.url.split('/').pop();
 
@@ -115,12 +120,15 @@ export default function ArchiveList({ data }: ArchiveListProps) {
               <img
                 data-observe
                 src={img.asset.url}
-                className={`w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
-                onClick={() =>
-                  setZoomImg(prev => (prev === img.asset.url ? null : img.asset.url))
-                }
+                className={`cursor-pointer w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
+                onClick={() => {
+                  setZoomImg((prev) => {
+                    if (prev) return null; // if something is open, just close it
+                    return img.asset.url; // otherwise open clicked image
+                  });
+                }}
               />
-                <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv) text-white mix-blend-difference`}>
+                <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
                   {fileName}
                 </div>
             </div>
