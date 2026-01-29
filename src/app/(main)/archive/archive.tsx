@@ -2,6 +2,7 @@
 
 import { shuffle } from './functions/shuffle';
 import { useEffect, useRef, useState } from 'react';
+import { scrollArchive } from './functions/scroll-archive';
 
 
 type ImageItem = {
@@ -18,6 +19,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
   const [visibleSet, setVisibleSet] = useState<Set<string>>(new Set());
 
   const hasShuffled = useRef(false);
+  const imgRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     if (hasShuffled.current) return;
@@ -50,7 +52,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         });
       },
       {
-        threshold: 0.2,
+        threshold: .05,
       }
     );
 
@@ -59,6 +61,18 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
     return () => observer.disconnect();
   }, [items]);
+
+  useEffect(() => {
+    if (zoomImg) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [zoomImg]);
 
   return (
     <>
@@ -73,7 +87,11 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           let zIndex = 'z-0 delay-0'
 
           if (isZoomed) {
-            scaleClass = 'scale-150';
+            if (window.innerWidth >= 1024) {
+              scaleClass = 'scale-150';
+            } else {
+              scaleClass = 'scale-200';
+            }
             opacityClass = 'opacity-100';
             blurClass = 'blur-none';
             zIndex = 'z-[8]';
@@ -86,16 +104,12 @@ export default function ArchiveList({ data }: ArchiveListProps) {
             zIndex = 'z-0 delay-500';
           }
 
-          // desktop: 6 columns
           const columnDesktop = index % 6;
-          // mobile: 2 columns
           const columnMobile = index % 2;
 
           let originClass = 'origin-center';
 
-          // --- MOBILE ---
           if (index < 2) {
-            // first mobile row
             if (columnMobile === 0) originClass = 'origin-top-left';
             else originClass = 'origin-top-right';
           } else {
@@ -103,10 +117,8 @@ export default function ArchiveList({ data }: ArchiveListProps) {
             else originClass = 'origin-[100%_50%]';
           }
 
-          // --- DESKTOP OVERRIDE ---
           if (window.innerWidth >= 1024) {
             if (index < 6) {
-              // first desktop row
               if (columnDesktop === 0) originClass = 'origin-top-left';
               else if (columnDesktop === 5) originClass = 'origin-top-right';
               else originClass = 'origin-top';
@@ -130,18 +142,29 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
             <div
               key={img.asset.url}
+              ref={(el) => {
+                if (el) imgRefs.current.set(img.asset.url, el);
+              }}
               className={`${zIndex} cursor-pointer`}
               onClick={() => {
-                  setZoomImg((prev) => {
-                    if (prev) return null;
-                    return img.asset.url;
-                  });
-                }}
+                // solo actuar si no hay ninguna imagen abierta
+                if (zoomImg) {
+                  setZoomImg(null);
+                  return;
+                }
+
+                setZoomImg(img.asset.url);
+
+                const el = imgRefs.current.get(img.asset.url);
+                if (el) {
+                  scrollArchive(el); // ← más alto = más lento
+                }
+              }}
             >
               <img
                 data-observe
                 src={img.asset.url}
-                className={`w-full h-auto transition-all duration-500 ease-in-out ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
+                className={`w-full h-auto transition-all duration-500 ease-in-out position-absolute ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
                 // onClick={() => {
                 //   setZoomImg((prev) => {
                 //     if (prev) return null;
