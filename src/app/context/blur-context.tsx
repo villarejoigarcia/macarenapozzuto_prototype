@@ -7,7 +7,7 @@ type BlurType = 'about' | 'single' | '';
 
 interface BlurContextValue {
   type: BlurType;
-  setType: (type: BlurType) => void;
+  setType: React.Dispatch<React.SetStateAction<BlurType>>;
 }
 
 const BlurContext = createContext<BlurContextValue | undefined>(undefined);

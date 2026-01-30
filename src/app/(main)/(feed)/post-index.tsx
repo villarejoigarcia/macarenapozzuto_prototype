@@ -14,6 +14,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
     const [activePost, setActivePost] = useState<string | null>(null);
     const [showOverflow, setShowOverflow] = useState(false);
     const [openList, setOpenList] = useState(false);
+    const [showFields, setShowFields] = useState(false);
 
     const { setType, type } = useBlur();
 
@@ -63,6 +64,8 @@ export default function PostIndex({ posts }: PostIndexProps) {
         return () => window.removeEventListener('resize', check);
     }, []);
 
+    const [fromIndex, setFromIndex] = useState(false);
+
     return (
         <>
             <Posts
@@ -75,6 +78,14 @@ export default function PostIndex({ posts }: PostIndexProps) {
                 setActivePost={setActivePost}
 
                 openIndex={openIndex}
+                openByIndex={openByIndex}
+
+                showFields={showFields}
+                setShowFields={setShowFields}
+
+                fromIndex={fromIndex}
+                setFromIndex={setFromIndex}
+
             />
 
             {/* index */}
@@ -83,12 +94,14 @@ export default function PostIndex({ posts }: PostIndexProps) {
                     ${showOverflow ? 'overflow-visible' : 'overflow-hidden'}
                     ${type === 'about' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 onMouseEnter={() => {
-                    setType('single');
                     setOpenList(true);
+                    if (showFields) return;
+                    setType('single');
                 }}
                 onMouseLeave={() => {
-                    setType('')
                     setOpenList(false);
+                    if (showFields) return;
+                    setType('')
                 }}
             >
 
@@ -101,8 +114,9 @@ export default function PostIndex({ posts }: PostIndexProps) {
                             key={p._id}
                             className={`cursor-pointer box-content transition-height duration-666 ${isActive || openList ? 'h-(--lh) opacity-100 lg:pb-(--kv) lg:pt-0 pt-(--kv) last:pb-0' : 'h-0 pb-0 opacity-0'}`}
                             onClick={() => {
-                                setType('single');
+                                // setType('single');
                                 openByIndex(i);
+                                setFromIndex(true);
                             }}
                         >
                             <h1

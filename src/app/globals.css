@@ -55,7 +55,7 @@ img {
 	top: 0;
 	left: 0;
 	width: 100vw;
-	z-index: 9;
+	z-index: 10;
 }
 
 #blur::before {
@@ -69,6 +69,7 @@ img {
 	height: 5vh;
 	background-color: rgba(11, 11, 11, .25);
 	transition: .666s;
+  pointer-events: none;
 }
 
 #blur.about::before,

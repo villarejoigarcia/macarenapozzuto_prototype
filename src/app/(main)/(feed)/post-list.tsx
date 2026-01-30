@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import PostItem from './post-item';
 import { getPostTop } from './functions/post-top';
+import { useBlur } from '../../context/blur-context';
 
 interface PostListProps {
   posts: any[];
@@ -14,6 +15,13 @@ interface PostListProps {
   setOpenPost: (id: string | null) => void;
 
   openIndex: number | null;
+  openByIndex: (index: number) => void;
+
+  showFields: boolean;
+  setShowFields: React.Dispatch<React.SetStateAction<boolean>>;
+
+  fromIndex: boolean;
+setFromIndex: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function PostList({
@@ -23,7 +31,31 @@ export default function PostList({
   openPost,
   setOpenPost,
   openIndex,
+  showFields,
+  setShowFields,
+  fromIndex,
+  setFromIndex
 }: PostListProps) {
+
+  const { setType, type } = useBlur();
+
+  useEffect(() => {
+    if (!openPost) {
+      setShowFields(false);
+      if (!fromIndex) {
+        setType('');
+      }
+      setFromIndex(false);
+
+    } else {
+      setShowFields(false);
+      if (!fromIndex) {
+        setType('');
+      }
+      setFromIndex(false);
+
+    }
+  }, [openPost]);
 
 
 
@@ -97,8 +129,22 @@ export default function PostList({
 
           openIndex={openIndex}
           getPostTop={getPostTop}
+
+          showFields={showFields}
         />
+
       ))}
+
+      <button
+        className={`cursor-pointer fixed top-[var(--kv)] left-1/2 z-50 transition-opacity duration-500 ${openPost && type !== 'about' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => {
+          setShowFields(v => !v)
+          setType(prev => (prev === 'single' ? '' : 'single'));
+        }}
+      >
+          {showFields ? '- Info' : '+ Info'}
+        </button>
+
     </section>
   );
 }

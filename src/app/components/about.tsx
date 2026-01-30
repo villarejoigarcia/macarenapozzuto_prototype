@@ -66,7 +66,7 @@ export default function About({ data }: AboutProps) {
     <section
       ref={aboutRef}
       className={`
-        z-99 fixed inset-0 w-screen h-dvh lg:px-[calc(100%/3)] px-(--kv) lg:py-(--kv) pb-(--kv) pt-[calc(var(--kv)+var(--lh)*2)] overflow-scroll flex flex-col gap-(--divider) transition duration-500 ease-in-out
+        z-50 fixed inset-0 w-screen h-dvh lg:px-[calc(100%/3)] px-(--kv) lg:py-(--kv) pb-(--kv) pt-[calc(var(--kv)+var(--lh)*2)] overflow-scroll flex flex-col gap-(--divider) transition duration-500 ease-in-out
         ${isOpen
           ? 'opacity-100 pointer-events-auto'
           : 'opacity-0 pointer-events-none'}

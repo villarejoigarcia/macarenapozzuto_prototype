@@ -2,11 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { urlFor } from '@/sanity/helper';
+import { PortableText } from '@portabletext/react'
+
 import { scrollPost } from './functions/scroll-x';
 import { scrollFeed } from './functions/scroll-y';
 import { Drag } from './functions/drag';
-import { useBlur } from '../../context/blur-context';
 import { VerticalScroll } from './functions/vertical-scroll';
+
+import { useBlur } from '../../context/blur-context';
 
 
 interface PostItemProps {
@@ -18,6 +21,7 @@ interface PostItemProps {
     setActivePost: (id: string | null) => void;
     openIndex: number | null;
     getPostTop: (index: number, openIndex: number | null) => number;
+    showFields: boolean; // Add showFields prop
 }
 
 export default function PostItem({
@@ -29,10 +33,9 @@ export default function PostItem({
     setActivePost,
     openIndex,
     getPostTop,
-
+    showFields, // Destructure showFields
 }: PostItemProps) {
 
-    const [isHover, setIsHover] = useState(false);
     const postRef = useRef<HTMLDivElement | null>(null);
     const coverRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,8 +44,10 @@ export default function PostItem({
     const isAnyOpen = openPost !== null;
     const isAnyActive = activePost !== null;
 
-    const { setType } = useBlur();
+    const { setType, type } = useBlur();
 
+    const [isHover, setIsHover] = useState(false);
+    // const [showFields, setShowFields] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -127,6 +132,12 @@ export default function PostItem({
         };
     }, [isOpen, setOpenPost, setActivePost, setType]);
 
+
+
+    // useEffect(() => {
+    //     if (!isOpen) setShowFields(false);
+    // }, [isOpen]);
+
     // transitions
 
     const heightClass = isOpen
@@ -146,8 +157,6 @@ export default function PostItem({
 
     const pointerEvents =
         (isHover || isOpen)
-            // ? 'opacity-100 pointer-events-auto' 
-            // : 'opacity-0 pointer-events-none';
             ? 'pointer-events-auto'
             : 'pointer-events-none';
 
@@ -159,6 +168,7 @@ export default function PostItem({
             ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass}
             ${(isActive && !isAnyOpen && isMobile) ? 'mb-(--caption)' : 'mb-0'}`}
         >
+
             <div
                 data-post
                 data-post-id={post._id}
@@ -166,18 +176,18 @@ export default function PostItem({
                 className={`flex flex-col items-center w-full h-full box-content
                     ${(isActive && !isAnyOpen && !isMobile) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
             >
+
                 {/* cover */}
+
                 <div
                     ref={coverRef}
                     className="relative h-full cursor-pointer"
                     onClick={() => {
-                        // Si el post ya está abierto, cerrarlo
                         if (isOpen) {
                             setOpenPost(null);
                             setActivePost(null);
                             window.history.pushState({}, '', '/');
                         } else {
-                            // Si está cerrado, abrirlo
                             setOpenPost(post._id);
                             if (postRef.current) {
                                 scrollPost(postRef.current);
@@ -185,17 +195,6 @@ export default function PostItem({
                             window.history.pushState({}, '', `/${post.slug.current}`);
                         }
                     }}
-                    // onMouseEnter={() => {
-                    //     setActivePost(post._id);
-                    //     setIsHover(true);
-                    // }}
-                    // onMouseLeave={() => {
-                    //     setActivePost(null);
-                    //     if (postRef.current) {
-                    //         if (!isOpen) scrollPost(postRef.current);
-                    //     }
-                    //     setIsHover(false);
-                    // }}     
 
                     onMouseEnter={() => {
                         if (isMobile) return;
@@ -211,6 +210,7 @@ export default function PostItem({
                         setIsHover(false);
                     }}
                 >
+
                     {post.cover && (
                         <img
                             src={urlFor(post.cover).url()}
@@ -220,19 +220,19 @@ export default function PostItem({
                     )}
 
                     {/* media */}
+
                     <div
                         // className={`absolute flex gap-[3px] top-0 left-full w-max h-full pl-[3px] transition-opacity duration-500 ${pointerEvents} ${mediaDelay}`}
                         className={`lg:absolute relative flex lg:flex-row flex-col gap-[3px] lg:top-0 top-auto lg:left-full left-0 lg:w-max w-full lg:h-full h-max lg:pl-[3px] pl-0 lg:pt-0 pt-[3px] ${pointerEvents}`}
                     >
+
                         {post.images?.map((img: any, i: number) => {
-                            // const delay = `${i * 250}ms`;
 
                             const delay = isMobile
                                 ? `${(post.images.length - i - 1) * 50}ms` // mobile
                                 : isHover || isOpen
                                     ? `${i * 150}ms`  // in desktop
                                     : `${(post.images.length - i - 1) * 50}ms`; // out desktop
-                            // : `${i * 100}ms`;
 
                             return (
                                 <img
@@ -252,7 +252,8 @@ export default function PostItem({
             </div>
 
             {/* text */}
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 z-50
+
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 z-50 pointer-events-none
                     ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-500' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
@@ -261,6 +262,44 @@ export default function PostItem({
                 ))}
                 <h2 className="lg:flex-1 flex-0">{post.year}</h2>
             </div>
+
+            {/* fields */}
+
+            <div className={`fixed top-(--kv) left-[calc(100vw*7/12)] pr-[calc(100vw/12)] transition-opacity duration-500 pointer-events-none z-150 ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
+                        
+                {post.categories?.length > 0 && (
+                    <>
+                        <h2 className='mb-(--kv)'>Services</h2>
+
+                        <div className='mb-(--divider)'>
+                            {post.categories.map((cat: { title: string }) => (
+                                <p key={cat.title} className="flex-1">
+                                    {cat.title}
+                                </p>
+                            ))}
+                        </div>
+                    </>
+                )}
+               
+                
+                {post.description?.length > 0 && (
+                    <>
+                        <h2 className='mb-(--kv)'>Description</h2>
+                        <div className='mb-(--divider)'>
+                            <PortableText value={post.description} />
+                        </div>
+                    </>
+                )}
+
+                {post.credits?.length > 0 && (
+                    <>
+                        <h2 className='mb-(--kv)'>Credits</h2>
+                        <PortableText value={post.credits} />
+                    </>
+                )}
+
+            </div>
+
         </div>
     );
 }
