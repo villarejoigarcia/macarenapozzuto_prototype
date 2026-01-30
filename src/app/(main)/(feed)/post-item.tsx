@@ -130,12 +130,12 @@ export default function PostItem({
     // transitions
 
     const heightClass = isOpen
-        ? 'lg:h-[75dvh] h-dvh'
+        ? 'lg:h-[75vh] h-dvh'
         : isAnyOpen
-            ? 'h-[27.5dvh]'
+            ? 'lg:h-[27.5vh] h-[33.333vh]'
             : !isOpen && isActive
-                ? 'h-[33.333dvh]'
-                : 'h-[27.5dvh]';
+                ? 'lg:h-[33.333vh] h-[40vh]'
+                : 'lg:h-[27.5vh] h-[33.333vh]';
 
     const opacityClass =
         (isAnyOpen && !isOpen) || (isAnyActive && !isActive && !isOpen)
@@ -151,20 +151,20 @@ export default function PostItem({
             ? 'pointer-events-auto'
             : 'pointer-events-none';
 
-    //  
-
-    // const mediaDelay =
-    //     !isOpen && isAnyOpen
-    //         ? 'delay-0' 
-    //         : !isHover && scrollX > 0 ? 'delay-500': 'delay-0';
+    const paddingClass = isOpen && isMobile ? 'pb-0' : 'pb-[5px]';
 
     return (
 
-        <div className={`relative transition-all duration-1000 pb-[5px] last:pb-0 ${heightClass} ${opacityClass} ${hoverActiveClass}`}>
+        <div className={`relative transition-all duration-1000 last:pb-0 
+            ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass}
+            ${(isActive && !isAnyOpen && isMobile) ? 'mb-(--caption)' : 'mb-0'}`}
+        >
             <div
                 data-post
+                data-post-id={post._id}
                 ref={postRef}
-                className={`flex flex-col items-center w-full h-full ${(isActive && !isAnyOpen) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
+                className={`flex flex-col items-center w-full h-full box-content
+                    ${(isActive && !isAnyOpen && !isMobile) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
             >
                 {/* cover */}
                 <div
@@ -252,15 +252,14 @@ export default function PostItem({
             </div>
 
             {/* text */}
-            <div
-                className={`lg:absolute relative left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 ${isHover && !isAnyOpen ? 'opacity-100 delay-500' : 'opacity-0'}`}
-            >
-                <h2 className="flex-1">{index + 1}.</h2>
-                <h2 className="flex-1 grow-3">{post.title}</h2>
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 z-50
+                    ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-500' : 'opacity-0'}`}>
+                <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
+                <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
                 {post.categories.map((cat: { title: string }) => (
                     <p key={cat.title} className="flex-1">{cat.title}</p>
                 ))}
-                <h2 className="flex-1">{post.year}</h2>
+                <h2 className="lg:flex-1 flex-0">{post.year}</h2>
             </div>
         </div>
     );

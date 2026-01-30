@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import PostItem from './post-item';
 import { getPostTop } from './functions/post-top';
 
@@ -23,9 +24,64 @@ export default function PostList({
   setOpenPost,
   openIndex,
 }: PostListProps) {
+
+
+
+  useEffect(() => {
+    if (window.innerWidth >= 1024) return;
+
+    const elements = Array.from(
+      document.querySelectorAll<HTMLElement>('#feed [data-post]')
+    );
+
+    const onScroll = () => {
+      const vh = window.innerHeight;
+      const threshold = vh / 3;
+
+      // Caso: inicio del scroll → primer post
+      if (window.scrollY <= 0 && elements[0]) {
+        const id = elements[0].dataset.postId;
+        if (id) setActivePost(id);
+        return;
+      }
+
+      // Caso: final del scroll → último post
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.scrollHeight - 1
+      ) {
+        const last = elements[elements.length - 1];
+        if (last) {
+          const id = last.dataset.postId;
+          if (id) setActivePost(id);
+        }
+        return;
+      }
+
+      // Caso normal: primer post cuyo centro supera el threshold
+      for (const el of elements) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top + rect.height / 2 >= threshold) {
+          const id = el.dataset.postId;
+          if (id) setActivePost(id);
+          return;
+        }
+      }
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [posts, setActivePost]);
+
+
+
   return (
-    
-    
     <section className="flex flex-col items-stretch overflow-hidden" id="feed">
       {posts.map((post, index) => (
         <PostItem
