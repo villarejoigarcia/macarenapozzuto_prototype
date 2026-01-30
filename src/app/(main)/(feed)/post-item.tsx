@@ -144,7 +144,7 @@ export default function PostItem({
         : isAnyOpen
             ? 'lg:h-[27.5vh] h-[33.333vh]'
             : !isOpen && isActive
-                ? 'lg:h-[33.333vh] h-[40vh]'
+                ? 'lg:h-[33.333vh] h-[50vh]'
                 : 'lg:h-[27.5vh] h-[33.333vh]';
 
     const opacityClass =
@@ -268,11 +268,11 @@ export default function PostItem({
                         
                 {post.categories?.length > 0 && (
                     <>
-                        <h2 className='mb-(--kv)'>Services</h2>
+                        {/* <h2 className='mb-(--kv)'>Services</h2> */}
 
-                        <div className='mb-(--divider)'>
+                        <div className='mb-(--lh) flex'>
                             {post.categories.map((cat: { title: string }) => (
-                                <p key={cat.title} className="flex-1">
+                                <p key={cat.title} className="pr-[3px] first:after:content-[',']">
                                     {cat.title}
                                 </p>
                             ))}
@@ -283,8 +283,8 @@ export default function PostItem({
                 
                 {post.description?.length > 0 && (
                     <>
-                        <h2 className='mb-(--kv)'>Description</h2>
-                        <div className='mb-(--divider)'>
+                        {/* <h2 className='mb-(--kv)'>Description</h2> */}
+                        <div className='mb-(--lh)'>
                             <PortableText value={post.description} />
                         </div>
                     </>
@@ -292,7 +292,7 @@ export default function PostItem({
 
                 {post.credits?.length > 0 && (
                     <>
-                        <h2 className='mb-(--kv)'>Credits</h2>
+                        {/* <h2 className='mb-(--kv)'>Credits</h2> */}
                         <PortableText value={post.credits} />
                     </>
                 )}
