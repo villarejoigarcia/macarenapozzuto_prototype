@@ -88,12 +88,12 @@ export default function About({ data }: AboutProps) {
         </div>
       )}
 
-      {data?.experience && (
+      {/* {data?.experience && (
         <div>
           <h2 className='mb-(--kv)'>Experience</h2>
           <PortableText value={data?.experience} />
         </div>
-      )}
+      )} */}
 
       {data?.mail && data?.instagram && (
         <div id="contact">

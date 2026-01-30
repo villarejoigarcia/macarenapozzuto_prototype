@@ -40,6 +40,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
 
         setOpenPost(post._id);
         window.history.pushState({}, '', `/${post.slug.current}`);
+        
     };
 
     useEffect(() => {
@@ -90,15 +91,17 @@ export default function PostIndex({ posts }: PostIndexProps) {
 
             {/* index */}
             <nav
-                className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--lh) z-50 transition-all duration-500 flex flex-col justify-end
+                className={`fixed lg:left-1/3 left-(--kv) lg:top-(--kv) top-auto lg:bottom-auto bottom-(--kv) z-50 transition-all duration-500 flex flex-col justify-end
                     ${showOverflow ? 'overflow-visible' : 'overflow-hidden'}
                     ${type === 'about' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 onMouseEnter={() => {
+                    if (isMobile) return;
                     setOpenList(true);
                     if (showFields) return;
                     setType('single');
                 }}
                 onMouseLeave={() => {
+                    if (isMobile) return;
                     setOpenList(false);
                     if (showFields) return;
                     setType('')
@@ -114,9 +117,10 @@ export default function PostIndex({ posts }: PostIndexProps) {
                             key={p._id}
                             className={`cursor-pointer box-content transition-height duration-666 ${isActive || openList ? 'h-(--lh) opacity-100 lg:pb-(--kv) lg:pt-0 pt-(--kv) last:pb-0' : 'h-0 pb-0 opacity-0'}`}
                             onClick={() => {
+                                if (isMobile) return;
                                 // setType('single');
                                 openByIndex(i);
-                                setFromIndex(true);
+                                // setFromIndex(true);
                             }}
                         >
                             <h1

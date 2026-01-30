@@ -3,7 +3,17 @@
 import { useBlur } from '../context/blur-context';
 
 export default function Blur() {
-  const { type } = useBlur(); // viene del contexto global
+  const { type, setType } = useBlur();
 
-  return <div id="blur" className={type || 'pointer-events-none'}></div>;
+  return (
+    <div
+      id="blur"
+      className={type || 'pointer-events-none'}
+      onClick={() => {
+        if (type === 'single') {
+          setType('');
+        }
+      }}
+    />
+  );
 }

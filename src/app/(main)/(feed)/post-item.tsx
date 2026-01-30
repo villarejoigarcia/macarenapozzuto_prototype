@@ -144,7 +144,7 @@ export default function PostItem({
         : isAnyOpen
             ? 'lg:h-[27.5vh] h-[33.333vh]'
             : !isOpen && isActive
-                ? 'lg:h-[33.333vh] h-[50vh]'
+                ? 'lg:h-[33.333vh] h-[40vh]'
                 : 'lg:h-[27.5vh] h-[33.333vh]';
 
     const opacityClass =
@@ -160,6 +160,7 @@ export default function PostItem({
             : 'pointer-events-none';
 
     const paddingClass = isOpen && isMobile ? 'pb-0' : 'pb-[5px]';
+    
 
     return (
 
@@ -250,34 +251,34 @@ export default function PostItem({
                 </div>
             </div>
 
-            {/* text */}
-
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 z-50 pointer-events-none
-                    ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-500' : 'opacity-0'}`}>
+            {/* caption */}
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none
+                    ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-666' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
                 {post.categories?.[0] && (
-    <p className="flex-1">{post.categories[0].title}</p>
-)}
+                    <p className="flex-1">{post.categories[0].title}</p>
+                )}
                 <h2 className="lg:flex-1 flex-0">{post.year}</h2>
             </div>
 
             {/* fields */}
+            <div className={`fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--caption) lg:left-[calc(100vw*7/12)] left-(--kv) pr-[calc(100vw/12)] transition-opacity duration-500 pointer-events-none z-150 ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
 
-            <div className={`fixed top-(--kv) left-[calc(100vw*7/12)] pr-[calc(100vw/12)] transition-opacity duration-500 pointer-events-none z-150 ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
-                        
-                {post.categories?.length > 0 && (
-                    <>
-                        {/* <h2 className='mb-(--kv)'>Services</h2> */}
+                {(post.categories?.length > 0 || post.year) && (
+                    <div className='mb-(--lh) flex'>
+                        {post.categories?.map((cat: { title: string }) => (
+                            <p key={cat.title} className="pr-[.2em] after:content-[',']">
+                                {cat.title}
+                            </p>
+                        ))}
 
-                        <div className='mb-(--lh) flex'>
-                            {post.categories.map((cat: { title: string }) => (
-                                <p key={cat.title} className="pr-[3px] first:after:content-[',']">
-                                    {cat.title}
-                                </p>
-                            ))}
-                        </div>
-                    </>
+                        {post.year && (
+                            <p className="pr-[3px]">
+                                {post.year}
+                            </p>
+                        )}
+                    </div>
                 )}
                
                 

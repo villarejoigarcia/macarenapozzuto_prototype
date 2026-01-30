@@ -21,7 +21,7 @@ interface PostListProps {
   setShowFields: React.Dispatch<React.SetStateAction<boolean>>;
 
   fromIndex: boolean;
-setFromIndex: React.Dispatch<React.SetStateAction<boolean>>;
+  setFromIndex: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function PostList({
@@ -40,19 +40,25 @@ export default function PostList({
   const { setType, type } = useBlur();
 
   useEffect(() => {
+    if (type === '') {
+      setShowFields(false);
+    }
+  }, [type]);
+
+  useEffect(() => {
     if (!openPost) {
       setShowFields(false);
-      if (!fromIndex) {
-        setType('');
-      }
-      setFromIndex(false);
+      // if (!fromIndex) {
+      //   setType('');
+      // }
+      // setFromIndex(false);
 
     } else {
       setShowFields(false);
-      if (!fromIndex) {
-        setType('');
-      }
-      setFromIndex(false);
+      // if (!fromIndex) {
+      //   setType('');
+      // }
+      // setFromIndex(false);
 
     }
   }, [openPost]);
@@ -136,14 +142,32 @@ export default function PostList({
       ))}
 
       <button
-        className={`cursor-pointer fixed top-[var(--kv)] left-1/2 z-50 transition-opacity duration-500 ${openPost && type !== 'about' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`cursor-pointer fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--kv) lg:left-1/2 left-3/5 z-50 transition-opacity duration-500 ${openPost && type !== 'about' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => {
-          setShowFields(v => !v)
-          setType(prev => (prev === 'single' ? '' : 'single'));
+          // setShowFields(v => !v)
+          if (showFields === true) {
+            setType('');
+            setShowFields(false);
+          } else {
+            setType('single');
+            setShowFields(true);
+          }
+          // setType(prev => (prev === 'single' ? '' : 'single'));
         }}
       >
-          {showFields ? '- Info' : '+ Info'}
-        </button>
+        {showFields ? '- Info' : '+ Info'}
+      </button>
+
+      <button
+        className={`cursor-pointer fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--kv) right-(--kv) z-50 transition-opacity duration-500 ${openPost && type !== 'about' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => {
+          setOpenPost(null);
+          setType('');
+          window.history.pushState({}, '', '/');
+        }}
+      >
+        Close
+      </button>
 
     </section>
   );
