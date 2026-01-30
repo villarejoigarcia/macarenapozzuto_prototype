@@ -6,6 +6,8 @@ export function scrollPost(
     const start = isMobile ? element.scrollTop : element.scrollLeft;
     const startTime = performance.now();
 
+    // const finalDuration = isMobile ? 1000 : duration;
+
     function animate(time: number) {
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / duration, 1);

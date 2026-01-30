@@ -164,17 +164,13 @@ export default function PostItem({
 
     return (
 
-        <div className={`relative transition-all duration-1000 last:pb-0 
-            ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass}
-            ${(isActive && !isAnyOpen && isMobile) ? 'mb-(--caption)' : 'mb-0'}`}
-        >
+        <div className={`relative transition-all duration-1000 last:pb-0 ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass} ${(isActive && !isAnyOpen && isMobile) ? 'mb-[calc(var(--caption)-5px)]' : 'mb-0'}`}>
 
             <div
                 data-post
                 data-post-id={post._id}
                 ref={postRef}
-                className={`flex flex-col items-center w-full h-full box-content
-                    ${(isActive && !isAnyOpen && !isMobile) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
+                className={`flex flex-col items-center w-full h-full box-content ${(isActive && !isAnyOpen && !isMobile) || (isHover && isOpen) || isOpen ? 'lg:overflow-x-scroll overflow-y-scroll' : 'overflow-hidden'}`}
             >
 
                 {/* cover */}
@@ -252,8 +248,7 @@ export default function PostItem({
             </div>
 
             {/* caption */}
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none
-                    ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-666' : 'opacity-0'}`}>
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-666' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
                 {post.categories?.[0] && (
@@ -266,7 +261,7 @@ export default function PostItem({
             <div className={`fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--caption) lg:left-[calc(100vw*7/12)] left-(--kv) pr-[calc(100vw/12)] transition-opacity duration-500 pointer-events-none z-150 ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
 
                 {(post.categories?.length > 0 || post.year) && (
-                    <div className='mb-(--lh) flex'>
+                    <div className='lg:mb-(--lh) mb-(--kv) flex'>
                         {post.categories?.map((cat: { title: string }) => (
                             <p key={cat.title} className="pr-[.2em] after:content-[',']">
                                 {cat.title}

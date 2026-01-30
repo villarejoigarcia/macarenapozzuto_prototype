@@ -155,7 +155,7 @@ export default function PostList({
           // setType(prev => (prev === 'single' ? '' : 'single'));
         }}
       >
-        {showFields ? '- Info' : '+ Info'}
+        {showFields ? 'Info -' : 'Info +'}
       </button>
 
       <button

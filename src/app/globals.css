@@ -122,4 +122,14 @@ header nav button:hover {
       height: 66.666vh;
     }
 
+        header::before {
+          content: "";
+          position: absolute;
+          z-index: -1;
+          inset: 0;
+          mask-image: linear-gradient(to bottom, rgb(11, 11, 11) 33.333%, transparent);
+          height: 5vh;
+          background-color: rgba(11, 11, 11, .25);
+        }
+
 }
