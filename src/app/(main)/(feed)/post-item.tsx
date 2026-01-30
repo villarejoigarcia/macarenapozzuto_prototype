@@ -21,7 +21,7 @@ interface PostItemProps {
     setActivePost: (id: string | null) => void;
     openIndex: number | null;
     getPostTop: (index: number, openIndex: number | null) => number;
-    showFields: boolean; // Add showFields prop
+    showFields: boolean;
 }
 
 export default function PostItem({
@@ -33,7 +33,7 @@ export default function PostItem({
     setActivePost,
     openIndex,
     getPostTop,
-    showFields, // Destructure showFields
+    showFields,
 }: PostItemProps) {
 
     const postRef = useRef<HTMLDivElement | null>(null);
@@ -47,7 +47,6 @@ export default function PostItem({
     const { setType, type } = useBlur();
 
     const [isHover, setIsHover] = useState(false);
-    // const [showFields, setShowFields] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -257,9 +256,9 @@ export default function PostItem({
                     ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-500' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
-                {post.categories.map((cat: { title: string }) => (
-                    <p key={cat.title} className="flex-1">{cat.title}</p>
-                ))}
+                {post.categories?.[0] && (
+    <p className="flex-1">{post.categories[0].title}</p>
+)}
                 <h2 className="lg:flex-1 flex-0">{post.year}</h2>
             </div>
 
