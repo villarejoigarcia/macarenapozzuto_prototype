@@ -2,7 +2,10 @@ export function scrollArchive(
   el: HTMLElement,
   duration = 1000 // ← controla la velocidad (ms)
 ) {
-  const rect = el.getBoundingClientRect();
+  const img = el.querySelector('img');
+  if (!img) return;
+
+  const rect = img.getBoundingClientRect();
   const startY = window.scrollY;
   const targetY =
     startY +

@@ -81,13 +81,12 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     const naturalHeight = img.naturalHeight;
 
     const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
 
     let scale = 1;
 
     // Clasificar en tres rangos: Extremas, Horizontal, Vertical
     const isExtreme = naturalHeight >= 2 * naturalWidth;
-    const isHorizontal = naturalWidth >= naturalHeight;
+    const isHorizontal = naturalWidth > naturalHeight;
     const isVertical = naturalHeight >= naturalWidth;
 
     if (windowWidth >= 1024) {
