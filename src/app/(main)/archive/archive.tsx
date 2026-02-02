@@ -208,7 +208,7 @@ const closeOverlay = () => {
   {zoomImg && (
     <img
       src={zoomImg}
-      className="lg:max-w-[66vw] max-w-[100vw] lg:max-h-[75vh] max-h-[83vh] w-auto h-auto"
+      className="lg:max-w-[66vw] max-w-[100vw] lg:max-h-[75vh] max-h-[83dvh] w-auto h-auto"
       // onClick={(e) => e.stopPropagation()} // evita que click en la imagen cierre
     />
   )}
