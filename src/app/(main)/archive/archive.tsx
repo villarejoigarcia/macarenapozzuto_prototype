@@ -16,8 +16,8 @@ type ArchiveListProps = {
 export default function ArchiveList({ data }: ArchiveListProps) {
   const [items, setItems] = useState<ImageItem[]>([]);
   const [zoomImg, setZoomImg] = useState<string | null>(null);
-  const [zoomRect, setZoomRect] = useState<DOMRect | null>(null);
   const [visibleSet, setVisibleSet] = useState<Set<string>>(new Set());
+  const [scales, setScales] = useState<Record<string, number>>({});
 
   const hasShuffled = useRef(false);
   const imgRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -53,7 +53,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         });
       },
       {
-        threshold: .1,
+        threshold: .05,
       }
     );
 
@@ -75,20 +75,43 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     };
   }, [zoomImg]);
 
-  const [showOverlay, setShowOverlay] = useState(false)
-  useEffect(() => {
-  if (zoomImg) {
-    setShowOverlay(true);
-    requestAnimationFrame(() => {
-      setShowOverlay(true); // fuerza transición de 0 → 1
-    });
-  }
-}, [zoomImg]);
+  function handleImageLoad(e: React.SyntheticEvent<HTMLImageElement, Event>, url: string) {
+    const img = e.currentTarget;
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
 
-const closeOverlay = () => {
-  setShowOverlay(false);
-  setTimeout(() => setZoomImg(null), 0); // espera que la animación termine
-};
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    let scale = 1;
+
+    // Clasificar en tres rangos: Extremas, Horizontal, Vertical
+    const isExtreme = naturalHeight >= 2 * naturalWidth;
+    const isHorizontal = naturalWidth >= naturalHeight;
+    const isVertical = naturalHeight >= naturalWidth;
+
+    if (windowWidth >= 1024) {
+      // Desktop
+      if (isExtreme) {
+        scale = 1.2;
+      } else if (isHorizontal) {
+        scale = 3;
+      } else if (isVertical) {
+        scale = 2;
+      }
+    } else {
+      // Mobile
+      if (isExtreme) {
+        scale = 1.25;
+      } else if (isHorizontal) {
+        scale = 2;
+      } else if (isVertical) {
+        scale = 2;
+      }
+    }
+
+    setScales((prev) => ({ ...prev, [url]: scale }));
+  }
 
   return (
     <>
@@ -99,18 +122,12 @@ const closeOverlay = () => {
 
           let opacityClass = 'opacity-0';
           let blurClass = 'blur-xs';
-          let scaleClass = 'scale-100 z-0';
           let zIndex = 'z-0 delay-0'
 
           if (isZoomed) {
-            if (window.innerWidth >= 1024) {
-              scaleClass = 'scale-150';
-            } else {
-              scaleClass = 'scale-200';
-            }
-            opacityClass = 'opacity-10';
-            blurClass = 'blur-xs';
-            // zIndex = 'z-[8]';
+            opacityClass = 'opacity-100';
+            blurClass = 'blur-none';
+            zIndex = 'z-[8]';
           } else if (zoomImg && isVisible) {
             opacityClass = 'opacity-10';
             blurClass = 'blur-xs';
@@ -146,16 +163,9 @@ const closeOverlay = () => {
           }
 
           const fileName = img.asset.url.split('/').pop();
+          const dynamicScale = scales[img.asset.url] ?? 1;
 
           return (
-            // <img
-            //   data-observe
-            //   key={img.asset.url}
-            //   src={img.asset.url}
-            //   className={`w-full h-auto transition-all duration-500 ${scaleClass} ${opacityClass} ${blurClass} ${originClass}`}
-            //   onClick={() => setZoomImg(prev => (prev === img.asset.url ? null : img.asset.url))}
-            // />
-
             <div
               key={img.asset.url}
               ref={(el) => {
@@ -163,9 +173,9 @@ const closeOverlay = () => {
               }}
               className={`${zIndex} cursor-pointer`}
               onClick={() => {
+                // solo actuar si no hay ninguna imagen abierta
                 if (zoomImg) {
                   setZoomImg(null);
-                  setZoomRect(null);
                   return;
                 }
 
@@ -173,26 +183,18 @@ const closeOverlay = () => {
 
                 const el = imgRefs.current.get(img.asset.url);
                 if (el) {
-                  const imgEl = el.querySelector('img');
-                  if (imgEl) {
-                    setZoomRect(imgEl.getBoundingClientRect());
-                  }
-                  scrollArchive(el);
+                  scrollArchive(el); // ← más alto = más lento
                 }
               }}
             >
               <img
                 data-observe
                 src={img.asset.url}
+                onLoad={(e) => handleImageLoad(e, img.asset.url)}
                 className={`w-full h-auto transition-all duration-500 ease-in-out position-absolute ${opacityClass} ${blurClass} ${originClass}`}
-                // onClick={() => {
-                //   setZoomImg((prev) => {
-                //     if (prev) return null;
-                //     return img.asset.url;
-                //   });
-                // }}
+                style={{ transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)' }}
               />
-              <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 z-[50]  fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
+              <div className={`${isZoomed && fileName ? 'opacity-100' : 'opacity-0'} transition duration-500 pointer-events-none fixed left-[50vw] translate-x-[-50%] bottom-(--kv)`}>
                 {fileName}
               </div>
             </div>
@@ -200,20 +202,6 @@ const closeOverlay = () => {
           );
         })}
       </div>
-      {zoomImg && zoomRect && (
-        <div
-  className={`fixed inset-0 z-[5] flex items-center justify-center pointer-events-auto transition-opacity duration-0 ${showOverlay ? 'opacity-100': 'opacity-0'}`}
-  onClick={closeOverlay} // <-- aquí
->
-  {zoomImg && (
-    <img
-      src={zoomImg}
-      className="lg:max-w-[66vw] max-w-[100vw] lg:max-h-[75vh] max-h-[83dvh] w-auto h-auto"
-      // onClick={(e) => e.stopPropagation()} // evita que click en la imagen cierre
-    />
-  )}
-</div>
-      )}
     </>
   );
 }
