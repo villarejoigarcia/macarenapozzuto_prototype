@@ -102,8 +102,8 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
     // Clasificar en tres rangos: Extremas, Horizontal, Vertical
     const isExtreme = naturalHeight >= 1.5 * naturalWidth;
-    const isHorizontal = naturalWidth > naturalHeight;
-    const isVertical = naturalHeight >= naturalWidth;
+    const isHorizontal = naturalWidth >= naturalHeight;
+    const isVertical = naturalHeight > naturalWidth;
 
     if (windowWidth >= 1024) {
       // Desktop
@@ -112,7 +112,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
       } else if (isHorizontal) {
         scale = 2;
       } else if (isVertical) {
-        scale = 1.5;
+        scale = 1.67;
       }
     } else {
       // Mobile
