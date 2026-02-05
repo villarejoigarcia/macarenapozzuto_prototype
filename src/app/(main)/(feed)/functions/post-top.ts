@@ -59,7 +59,7 @@ export function getPostTop(
     const isMobile = window.innerWidth < 1024;
 
     const close = isMobile ? 33.333 : 27.5;
-    const open  = isMobile ? window.visualViewport.height : 75;
+    const open  = isMobile ? window.innerHeight : 75;
 
     const effectiveOpenIndex =
         openIndex === index ? null : openIndex;
@@ -70,7 +70,7 @@ export function getPostTop(
         scrollVh += i === effectiveOpenIndex ? open : close;
     }
 
-    const calculatedTop = (scrollVh / 100) * window.visualViewport.height
+    const calculatedTop = (scrollVh / 100) * window.innerHeight
 
     return calculatedTop;
 }
