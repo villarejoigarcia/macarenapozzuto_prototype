@@ -119,8 +119,68 @@ export default function PostList({
 
 
 
+  // useEffect(() => {
+  //   if (window.innerWidth >= 1024) return;
+
+  //   const feed = document.getElementById('feed');
+  //   if (!feed) return;
+
+  //   const elements = Array.from(
+  //     feed.querySelectorAll<HTMLElement>('[data-post]')
+  //   );
+
+  //   const onScroll = () => {
+  //     const vh = feed.clientHeight;
+  //     const scrollTop = feed.scrollTop;
+  //     const threshold = vh / 3;
+
+  //     // inicio del scroll → primer post
+  //     if (scrollTop <= 0 && elements[0]) {
+  //       const id = elements[0].dataset.postId;
+  //       if (id) setActivePost(id);
+  //       return;
+  //     }
+
+  //     // final del scroll → último post
+  //     if (scrollTop + vh >= feed.scrollHeight - 1) {
+  //       const last = elements[elements.length - 1];
+  //       if (last) {
+  //         const id = last.dataset.postId;
+  //         if (id) setActivePost(id);
+  //       }
+  //       return;
+  //     }
+
+  //     // caso normal
+  //     for (const el of elements) {
+  //       const rect = el.getBoundingClientRect();
+  //       const feedRect = feed.getBoundingClientRect();
+
+  //       const relativeTop = rect.top - feedRect.top;
+
+  //       if (relativeTop + rect.height / 2 >= threshold) {
+  //         const id = el.dataset.postId;
+  //         if (id) setActivePost(id);
+  //         return;
+  //       }
+  //     }
+  //   };
+
+  //   onScroll();
+  //   feed.addEventListener('scroll', onScroll, { passive: true });
+  //   window.addEventListener('resize', onScroll);
+
+  //   return () => {
+  //     feed.removeEventListener('scroll', onScroll);
+  //     window.removeEventListener('resize', onScroll);
+  //   };
+  // }, [posts, setActivePost]);
+
+
+
   return (
-    <section className="flex flex-col items-stretch overflow-hidden" id="feed">
+    // <section className="flex flex-col items-stretch overflow-hidden" id="feed">
+    <section className="flex flex-col items-stretch" id="feed">
       {posts.map((post, index) => (
         <PostItem
           key={post._id}

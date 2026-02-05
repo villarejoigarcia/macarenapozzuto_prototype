@@ -67,6 +67,12 @@ export default function PostIndex({ posts }: PostIndexProps) {
 
     const [fromIndex, setFromIndex] = useState(false);
 
+    useEffect(() => {
+        if (type === '') {
+            setOpenList(false);
+        }
+    }, [type]);
+
     return (
         <>
             <Posts
@@ -106,6 +112,13 @@ export default function PostIndex({ posts }: PostIndexProps) {
                     if (showFields) return;
                     setType('')
                 }}
+
+                onClick={() => {
+                    if (!isMobile) return;
+                    setOpenList(true);
+                    if (showFields) return;
+                    setType('single')
+                }}
             >
 
                 {posts.map((p, i) => {
@@ -117,15 +130,23 @@ export default function PostIndex({ posts }: PostIndexProps) {
                             key={p._id}
                             className={`cursor-pointer box-content transition-height duration-666 ${isActive || openList ? 'h-(--lh) opacity-100 lg:pb-(--kv) lg:pt-0 pt-(--kv) last:pb-0' : 'h-0 pb-0 opacity-0'}`}
                             onClick={() => {
-                                if (isMobile) return;
-                                // setType('single');
+                                if (type === '') return;
                                 openByIndex(i);
-                                // setFromIndex(true);
                             }}
                         >
                             <h1
-                                onMouseEnter={() => setActivePost(p._id)}
-                                onMouseLeave={() => setActivePost(null)}
+                                onMouseEnter={() => {
+                                    if (isMobile) return;
+                                    setActivePost(p._id)}
+                                }
+                                onMouseLeave={() => {
+                                    if (isMobile) return;
+                                    setActivePost(null)}
+                                }
+                                onClick={() => {
+                                    if (!isMobile) return;
+                                    setActivePost(p._id)}
+                                }
                                 className={`transition-opacity duration-666 ${isActive || isHover ? 'opacity-100' : 'opacity-30'}`}
                             >
                                 {p.title}

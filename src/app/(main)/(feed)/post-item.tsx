@@ -70,7 +70,6 @@ export default function PostItem({
     }, [post._id, post.slug.current, setOpenPost]);
 
 
-
     useEffect(() => {
 
         if (!isOpen) return;
@@ -91,6 +90,25 @@ export default function PostItem({
             scrollPost(postRef.current);
         }
     }, [isOpen]);
+
+
+
+    // useEffect(() => {
+    //     if (!isOpen) return;
+
+    //     const feed = document.getElementById('feed');
+    //     if (!feed) return;
+
+    //     const isMobile = window.innerWidth < 1024;
+
+    //     // offset solo en desktop
+    //     const offset = isMobile ? 0 : window.innerHeight * 0.125;
+
+    //     const targetScroll = getPostTop(index, openIndex) - offset;
+
+    //     scrollFeed(targetScroll);
+
+    // }, [isOpen, index, openIndex, getPostTop]);
 
 
 
@@ -248,7 +266,7 @@ export default function PostItem({
             </div>
 
             {/* caption */}
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 delay-666' : 'opacity-0'}`}>
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 lg:delay-666 delay-333' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
                 {post.categories?.[0] && (

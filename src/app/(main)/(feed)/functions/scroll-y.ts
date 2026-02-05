@@ -64,3 +64,33 @@ export function scrollFeed(
     }
     requestAnimationFrame(animate);
 }
+
+// export function scrollFeed(
+//     target: number,
+//     duration = 1000,
+// ) {
+//     const feed = document.getElementById('feed') as HTMLElement;
+//     if (!feed) return;
+
+//     const start = feed.scrollTop;
+//     const change = target - start;
+//     const startTime = performance.now();
+
+//     function animate(currentTime: number) {
+//         const elapsed = currentTime - startTime;
+//         const progress = Math.min(elapsed / duration, 1);
+
+//         // easeInOutQuad
+//         const ease = progress < 0.5
+//             ? 2 * progress * progress
+//             : -1 + (4 - 2 * progress) * progress;
+
+//         feed.scrollTop = start + change * ease;
+
+//         if (progress < 1) {
+//             requestAnimationFrame(animate);
+//         }
+//     }
+
+//     requestAnimationFrame(animate);
+// }
