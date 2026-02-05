@@ -108,11 +108,11 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     if (windowWidth >= 1024) {
       // Desktop
       if (isExtreme) {
-        scale = 1.25;
+        scale = 1.34;
       } else if (isHorizontal) {
-        scale = 2;
+        scale = 3;
       } else if (isVertical) {
-        scale = 1.67;
+        scale = 2;
       }
     } else {
       // Mobile

@@ -180,7 +180,7 @@ export default function PostList({
 
   return (
     // <section className="flex flex-col items-stretch overflow-hidden" id="feed">
-    <section className="flex flex-col items-stretch" id="feed">
+    <section className="flex flex-col items-stretch overflow-hidden" id="feed">
       {posts.map((post, index) => (
         <PostItem
           key={post._id}
