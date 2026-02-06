@@ -2,10 +2,10 @@ export function scrollArchive(
   el: HTMLElement,
   duration = 1000 // ← controla la velocidad (ms)
 ) {
-  const img = el.querySelector('img');
-  if (!img) return;
+  const media = el.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
+  if (!media) return;
 
-  const rect = img.getBoundingClientRect();
+  const rect = media.getBoundingClientRect();
   const startY = window.scrollY;
   const targetY =
     startY +
@@ -20,14 +20,10 @@ export function scrollArchive(
     const progress = Math.min(elapsed / duration, 1);
 
     // easing suave (easeInOut)
-    // const ease =
-    //   progress < 0.5
-    //     ? 2 * progress * progress
-    //     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-    
-    const ease = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress;
+    const ease =
+      progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress;
 
     window.scrollTo(0, startY + (targetY - startY) * ease);
 

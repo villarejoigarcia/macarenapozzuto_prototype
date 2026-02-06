@@ -9,24 +9,28 @@
 // }`;
 
 export const archive_query = `
-  (
+(
   *[_type == "archive"].images[]{
-    asset->{
-      url
-    },
-    title
-  }
+      _type,
+      asset->{
+        url
+      },
+      title
+    }
 )
 +
 (
-  *[_type == "post"].images[]{
-    asset->{
-      url
-    },
-    title
+  *[_type == "post"]{
+    images[]{
+      _type,
+      asset->{
+        url
+      },
+      title
+    }
   }
 )
-  +
++
 (
   *[_type == "post" && defined(cover)]{
     "asset": cover.asset->{
