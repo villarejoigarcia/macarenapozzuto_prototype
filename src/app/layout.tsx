@@ -30,7 +30,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className="bg-black">
+      <body className="bg-black overflow-hidden">
         <BlurProvider>
           <AboutProvider>
             <PostProvider>

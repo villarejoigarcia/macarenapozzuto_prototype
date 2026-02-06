@@ -240,27 +240,47 @@ export default function PostItem({
                         className={`lg:absolute relative flex lg:flex-row flex-col gap-[3px] lg:top-0 top-auto lg:left-full left-0 lg:w-max w-full lg:h-full h-max lg:pl-[3px] pl-0 lg:pt-0 pt-[3px] ${pointerEvents}`}
                     >
 
-                        {post.images?.map((img: any, i: number) => {
+                        {post.images?.map((media: any, i: number) => {
+  const delay = isMobile
+    ? `${(post.images.length - i - 1) * 50}ms`
+    : isHover || isOpen
+      ? `${i * 150}ms`
+      : `${(post.images.length - i - 1) * 50}ms`;
 
-                            const delay = isMobile
-                                ? `${(post.images.length - i - 1) * 50}ms` // mobile
-                                : isHover || isOpen
-                                    ? `${i * 150}ms`  // in desktop
-                                    : `${(post.images.length - i - 1) * 50}ms`; // out desktop
+  // Diferenciar imagen de video
+  if (media._type === 'image') {
+    return (
+      <img
+        key={i}
+        src={urlFor(media).url()}
+        alt={post.title}
+        className="object-cover w-auto transition-opacity duration-500"
+        style={{
+          opacity: isHover || isOpen ? 1 : 0,
+          transitionDelay: delay,
+        }}
+      />
+    );
+  } else if (media._type === 'file') {
+    return (
+      <video
+        key={i}
+        src={media.asset?.url}
+        loop
+        autoPlay
+        muted
+        playsInline
+        className="object-cover w-auto transition-opacity duration-500"
+        style={{
+          opacity: isHover || isOpen ? 1 : 0,
+          transitionDelay: delay,
+        }}
+      />
+    );
+  }
 
-                            return (
-                                <img
-                                    key={i}
-                                    src={urlFor(img).url()}
-                                    alt={post.title}
-                                    className={`object-cover w-auto transition-opacity duration-500`}
-                                    style={{
-                                        opacity: isHover || isOpen ? 1 : 0,
-                                        transitionDelay: delay,
-                                    }}
-                                />
-                            );
-                        })}
+  return null;
+})}
                     </div>
                 </div>
             </div>

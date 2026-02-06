@@ -1,1 +1,22 @@
-export const POSTS_QUERY = `*[_type=="post" && defined(slug.current)] | order(order asc)[] {_id, title, year, slug, images, description, credits, cover, categories[]->{title}, publishedAt}`;
+export const POSTS_QUERY = `*[_type=="post" && defined(slug.current)] | order(order asc){
+  _id,
+  title,
+  year,
+  slug,
+  description,
+  credits,
+  publishedAt,
+  categories[]->{title},
+  cover{
+    _type,
+    asset->{
+      url
+    }
+  },
+  images[]{
+    _type,
+    asset->{
+      url
+    }
+  }
+}`;

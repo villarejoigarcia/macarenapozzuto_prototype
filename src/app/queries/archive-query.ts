@@ -22,7 +22,8 @@ export const archive_query = `
   *[_type == "post"].images[]{
     asset->{
       url
-    }
+    },
+    title
   }
 )
   +
@@ -30,7 +31,8 @@ export const archive_query = `
   *[_type == "post" && defined(cover)]{
     "asset": cover.asset->{
       url
-    }
+    },
+    title
   }
 )
 `;
