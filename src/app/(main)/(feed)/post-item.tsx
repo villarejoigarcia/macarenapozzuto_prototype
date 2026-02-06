@@ -160,10 +160,10 @@ export default function PostItem({
     const heightClass = isOpen
         ? 'lg:h-[75vh] h-dvh'
         : isAnyOpen
-            ? 'lg:h-[27.5vh] h-[33.333vh]'
+            ? 'lg:h-[27.5vh] h-[33.333dvh]'
             : !isOpen && isActive
-                ? 'lg:h-[33.333vh] h-[40vh]'
-                : 'lg:h-[27.5vh] h-[33.333vh]';
+                ? 'lg:h-[33.333vh] h-[40dvh]'
+                : 'lg:h-[27.5vh] h-[33.333dvh]';
 
     const opacityClass =
         (isAnyOpen && !isOpen) || (isAnyActive && !isActive && !isOpen)
@@ -266,7 +266,7 @@ export default function PostItem({
             </div>
 
             {/* caption */}
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive) ? 'opacity-100 lg:delay-666 delay-333' : 'opacity-0'}`}>
+            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive && !isOpen) ? 'opacity-100 lg:delay-666 delay-333' : 'opacity-0'}`}>
                 <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
                 <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
                 {post.categories?.[0] && (
