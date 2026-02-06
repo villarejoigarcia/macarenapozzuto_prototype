@@ -7,6 +7,7 @@ import { scrollArchive } from './functions/scroll-archive';
 
 type ImageItem = {
   asset: { url: string };
+  title?: string;
 };
 
 type ArchiveListProps = {
@@ -21,6 +22,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
   const [showText, setShowText] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<string | null>(null);
+  const [lastTitle, setLastTitle] = useState<string | null>(null);
 
   const hasShuffled = useRef(false);
   const imgRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -80,16 +82,18 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
   useEffect(() => {
     if (zoomImg) {
+      const activeImage = items.find(img => img.asset.url === zoomImg);
+      const title = activeImage?.title?.trim() || 'Untitled';
       setTextValue(zoomImg);
+      setLastTitle(title);
       setShowText(true);
     } else {
-      const timeout = setTimeout(() => {
+      setTimeout(() => {
         setShowText(false);
         setTextValue(null);
-      }, 500);
-      return () => clearTimeout(timeout);
+      });
     }
-  }, [zoomImg]);
+  }, [zoomImg, items]);
 
   function handleImageLoad(e: React.SyntheticEvent<HTMLImageElement, Event>, url: string) {
     const img = e.currentTarget;
@@ -102,8 +106,8 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
     // Clasificar en tres rangos: Extremas, Horizontal, Vertical
     const isExtreme = naturalHeight >= 1.5 * naturalWidth;
-    const isHorizontal = naturalWidth >= naturalHeight;
-    const isVertical = naturalHeight > naturalWidth;
+    const isHorizontal = naturalWidth > naturalHeight;
+    const isVertical = naturalHeight >= naturalWidth;
 
     if (windowWidth >= 1024) {
       // Desktop
@@ -218,8 +222,8 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         })}
       </div>
 
-  <p className={`fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${zoomImg ? 'opacity-100' : 'opacity-0'}`}>
-    {showText && textValue ? textValue.split('/').pop() : ''}
+  <p className={`fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+    {lastTitle}
   </p>
     </>
   );

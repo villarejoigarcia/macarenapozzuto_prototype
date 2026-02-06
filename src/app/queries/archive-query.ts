@@ -13,7 +13,8 @@ export const archive_query = `
   *[_type == "archive"].images[]{
     asset->{
       url
-    }
+    },
+    title
   }
 )
 +
