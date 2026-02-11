@@ -32,8 +32,9 @@ export const archive_query = `
 )
 +
 (
-  *[_type == "post" && defined(cover)]{
-    "asset": cover.asset->{
+  *[_type == "post" && defined(cover)].cover{
+    _type,
+    asset->{
       url
     },
     title

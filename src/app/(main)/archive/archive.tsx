@@ -62,7 +62,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           {
             _type: item.cover._type || 'image',
             asset: { url: item.cover.asset.url },
-            title: item.title || 'Untitled',
+            title: item.cover.asset.title || 'Untitled',
           } as ImageItem,
         ];
       }
