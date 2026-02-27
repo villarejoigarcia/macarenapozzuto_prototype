@@ -70,7 +70,7 @@ function ScrollItem({ index }: { index: number }) {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center lg:px-[40vw] relative`}>
+    <div className={`flex flex-col items-center lg:px-[35vw] relative`}>
       <motion.div
         ref={ref}
         style={{ width }}
