@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { div } from "framer-motion/client";
 
 function ScrollItem({ index }: { index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -11,6 +10,7 @@ function ScrollItem({ index }: { index: number }) {
   const { scrollY } = useScroll();
 
   const scaleRaw = useTransform(scrollY, () => {
+  // const scale = useTransform(scrollY, () => {
     if (!ref.current) return 0.333;
 
     const rect = ref.current.getBoundingClientRect();
@@ -49,16 +49,28 @@ function ScrollItem({ index }: { index: number }) {
   }, []);
 
   const widthSpring = useSpring(scaleRaw, {
-    stiffness: 500,
+    stiffness: 1000,
     damping: 200,
     mass: 1,
-    bounce: 0,
   });
 
   const width = useTransform(widthSpring, [0.333, 1], ["33.333%", "100%"]);
 
+  // const width = useTransform(scale, [0.3, 1], ["30%", "100%"]);
+
+  const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
+    <div className={`flex flex-col items-center lg:px-[40vw] relative`}>
       <motion.div
         ref={ref}
         style={{ width }}
@@ -71,12 +83,14 @@ function ScrollItem({ index }: { index: number }) {
       </motion.div>
 
       <div ref={textRef}
-        style={{ height: isActive ? textHeight : 0 }}
-        className={`overflow-hidden transition-all duration-500 flex w-full box-border px-[10px] ${isActive ? 'my-[10px_5px]' : 'p-0'} relative lg:absolute top-full left-0`}
+        style={{
+          height: isMobile ? (isActive ? textHeight : 0) : 'auto'
+        }}
+        className={`overflow-hidden transition-all duration-1000 flex w-full box-border px-[10px] lg:my-[10px_5px] ${isActive && isMobile ? 'my-[10px_5px]' : 'p-0'} relative lg:absolute top-full left-0`}
       >
-        <p className="flex-1 grow-2 lg:grow-3">Fotosprint</p>
-        <p className="flex-1">Brand identity</p>
-        <p className="flex-0 text-right">2025</p>
+        <p className={`flex-1 grow-2 lg:grow-3 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
+        <p className={`flex-1 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Brand identity</p>
+        <p className={`flex-0 text-right opacity-0 transition-opacity duration-500 ${opacityClass}`}>2025</p>
       </div>
 
     </div>
