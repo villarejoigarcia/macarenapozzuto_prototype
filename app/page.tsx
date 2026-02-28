@@ -137,51 +137,51 @@ function ScrollItem({ index }: { index: number }) {
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const scrollTimeout = { current: null as NodeJS.Timeout | null };
+  // useEffect(() => {
+  //   const scrollTimeout = { current: null as NodeJS.Timeout | null };
 
-    const handleScroll = () => {
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+  //   const handleScroll = () => {
+  //     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
 
-      scrollTimeout.current = setTimeout(() => {
-        if (!containerRef.current) return;
+  //     scrollTimeout.current = setTimeout(() => {
+  //       if (!containerRef.current) return;
 
-        const items = Array.from(containerRef.current.querySelectorAll(".item")) as HTMLDivElement[];
-        if (!items.length) return;
+  //       const items = Array.from(containerRef.current.querySelectorAll(".item")) as HTMLDivElement[];
+  //       if (!items.length) return;
 
-        const viewportCenter = window.innerHeight / 2;
-        let closest = items[0];
-        let minDistance = Infinity;
+  //       const viewportCenter = window.innerHeight / 2;
+  //       let closest = items[0];
+  //       let minDistance = Infinity;
 
-        items.forEach((el) => {
-          const rect = el.getBoundingClientRect();
-          const elementCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(elementCenter - viewportCenter);
+  //       items.forEach((el) => {
+  //         const rect = el.getBoundingClientRect();
+  //         const elementCenter = rect.top + rect.height / 2;
+  //         const distance = Math.abs(elementCenter - viewportCenter);
 
-          if (distance < minDistance) {
-            minDistance = distance;
-            closest = el;
-          }
-        });
+  //         if (distance < minDistance) {
+  //           minDistance = distance;
+  //           closest = el;
+  //         }
+  //       });
 
-        const rect = closest.getBoundingClientRect();
-        const elementCenter = rect.top + rect.height / 2;
-        const offset = elementCenter - viewportCenter;
+  //       const rect = closest.getBoundingClientRect();
+  //       const elementCenter = rect.top + rect.height / 2;
+  //       const offset = elementCenter - viewportCenter;
 
-        const start = window.scrollY;
-        const end = start + offset;
+  //       const start = window.scrollY;
+  //       const end = start + offset;
 
-        animate(start, end, {
-          duration: 1,
-          // ease: easeOut,
-          onUpdate: (latest) => window.scrollTo(0, latest),
-        });
-      }, 1000);
-    };
+  //       animate(start, end, {
+  //         duration: 1,
+  //         // ease: easeOut,
+  //         onUpdate: (latest) => window.scrollTo(0, latest),
+  //       });
+  //     }, 1000);
+  //   };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
 
   return (
     <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
