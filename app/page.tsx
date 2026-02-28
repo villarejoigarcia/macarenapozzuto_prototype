@@ -11,17 +11,21 @@ function ScrollItem({ index }: { index: number }) {
 
   const scaleRaw = useTransform(scrollY, () => {
   // const scale = useTransform(scrollY, () => {
-    if (!ref.current) return 0.333;
+    if (!ref.current) return 0.5;
 
     const rect = ref.current.getBoundingClientRect();
-    const viewportCenter = window.innerHeight / 2;
-    const elementCenter = rect.top + rect.height / 2;
+    // const viewportCenter = window.innerHeight / 2;
+    // const elementCenter = rect.top + rect.height / 2;
+
+    const viewportCenter = 0;
+    // const viewportCenter = window.innerHeight / 6;
+    const elementCenter = rect.top;
 
     const distance = Math.abs(viewportCenter - elementCenter);
     const maxDistance = window.innerHeight / 2;
     const normalized = Math.min(distance / maxDistance, 1);
 
-    return 1 - normalized * 0.667;
+    return 1 - normalized * 0.5;
   });
 
   const [isActive, setIsActive] = useState(false);
@@ -31,12 +35,19 @@ function ScrollItem({ index }: { index: number }) {
       if (!ref.current) return;
 
       const rect = ref.current.getBoundingClientRect();
-      const viewportTrigger = window.innerHeight / 2;
+      // const viewportTrigger = window.innerHeight / 2;
+      // const viewportTrigger = 0;
+      
+      if (!isMobile) {
+        const viewportTrigger = window.innerHeight / 3;
+        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+        setIsActive(active);
+      } else {
+        const viewportTrigger = window.innerHeight / 2;
+        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+        setIsActive(active);
+      }
 
-      const active =
-        rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
-
-      setIsActive(active);
     });
 
     return () => unsubscribe();
@@ -49,12 +60,13 @@ function ScrollItem({ index }: { index: number }) {
   }, []);
 
   const widthSpring = useSpring(scaleRaw, {
-    stiffness: 1000,
+    stiffness: 800,
     damping: 200,
     mass: 1,
   });
 
-  const width = useTransform(widthSpring, [0.333, 1], ["33.333%", "100%"]);
+  // const width = useTransform(widthSpring, [0.333, 1], ["33.333%", "100%"]);
+  const width = useTransform(widthSpring, [0.5, 1], ["50%", "100%"]);
 
   // const width = useTransform(scale, [0.3, 1], ["30%", "100%"]);
 
@@ -70,7 +82,7 @@ function ScrollItem({ index }: { index: number }) {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center lg:px-[35vw] relative`}>
+    <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
       <motion.div
         ref={ref}
         style={{ width }}
@@ -88,6 +100,7 @@ function ScrollItem({ index }: { index: number }) {
         }}
         className={`overflow-hidden transition-all duration-1000 flex w-full box-border px-[10px] lg:my-[10px_5px] ${isActive && isMobile ? 'my-[10px_5px]' : 'p-0'} relative lg:absolute top-full left-0`}
       >
+        <p className={`lg:flex-1 flex-0 mr-[.3em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
         <p className={`flex-1 grow-2 lg:grow-3 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
         <p className={`flex-1 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Brand identity</p>
         <p className={`flex-0 text-right opacity-0 transition-opacity duration-500 ${opacityClass}`}>2025</p>
@@ -99,7 +112,7 @@ function ScrollItem({ index }: { index: number }) {
 
 export default function Page() {
   return (
-    <div className="wrapper flex flex-col gap-[5px] items-center py-[51dvh]">
+    <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <ScrollItem key={i} index={i} />
       ))}
