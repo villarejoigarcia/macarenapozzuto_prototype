@@ -32,4 +32,5 @@ body {
   font-size: 13px;
   line-height: 1em;
   letter-spacing: -.02em;
+  -webkit-font-smoothing: antialiased;
 }

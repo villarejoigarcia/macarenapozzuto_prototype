@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, animate, easeIn, easeInOut, easeOut } from "framer-motion";
 
 function ScrollItem({ index }: { index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,24 +9,48 @@ function ScrollItem({ index }: { index: number }) {
   const [textHeight, setTextHeight] = useState(0);
   const { scrollY } = useScroll();
 
-  const scaleRaw = useTransform(scrollY, () => {
-  // const scale = useTransform(scrollY, () => {
-    if (!ref.current) return 0.5;
+  // const scaleRaw = useTransform(scrollY, () => {
+  // // const scale = useTransform(scrollY, () => {
+  //   if (!ref.current) return 0.5;
 
-    const rect = ref.current.getBoundingClientRect();
-    // const viewportCenter = window.innerHeight / 2;
-    // const elementCenter = rect.top + rect.height / 2;
+  //   const rect = ref.current.getBoundingClientRect();
 
-    const viewportCenter = 0;
-    // const viewportCenter = window.innerHeight / 6;
-    const elementCenter = rect.top;
+  //   // const viewportCenter = window.innerHeight / 2;
+  //   // const elementCenter = rect.top + rect.height / 2;
 
-    const distance = Math.abs(viewportCenter - elementCenter);
-    const maxDistance = window.innerHeight / 2;
-    const normalized = Math.min(distance / maxDistance, 1);
+  //   const viewportCenter = 0;
+  //   const elementCenter = rect.top;
 
-    return 1 - normalized * 0.5;
-  });
+  //   const distance = Math.abs(viewportCenter - elementCenter);
+  //   const maxDistance = window.innerHeight / 2;
+  //   const normalized = Math.min(distance / maxDistance, 1);
+
+  //   return 1 - normalized * 0.5;
+  // });
+
+  const scaleRaw = useTransform(scrollY, (latest) => {
+  if (!ref.current) return 0.5;
+
+  const rect = ref.current.getBoundingClientRect();
+
+  let viewportCenter;
+  let elementCenter;
+
+  // if (latest === 0) {
+  if (latest < 5) {
+    viewportCenter = 0;
+    elementCenter = rect.top;
+  } else {
+    viewportCenter = window.innerHeight / 2;
+    elementCenter = rect.top + rect.height / 2;
+  }
+
+  const distance = Math.abs(viewportCenter - elementCenter);
+  const maxDistance = window.innerHeight / 2;
+  const normalized = Math.min(distance / maxDistance, 1);
+
+  return 1 - normalized * 0.5;
+});
 
   const [isActive, setIsActive] = useState(false);
 
@@ -100,8 +124,8 @@ function ScrollItem({ index }: { index: number }) {
         }}
         className={`overflow-hidden transition-all duration-1000 flex w-full box-border px-[10px] lg:my-[10px_5px] ${isActive && isMobile ? 'my-[10px_5px]' : 'p-0'} relative lg:absolute top-full left-0`}
       >
-        <p className={`lg:flex-1 flex-0 mr-[.3em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
-        <p className={`flex-1 grow-2 lg:grow-3 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
+        <p className={`lg:flex-1 flex-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
+        <p className={`flex-1 grow-2 lg:grow-4 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
         <p className={`flex-1 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Brand identity</p>
         <p className={`flex-0 text-right opacity-0 transition-opacity duration-500 ${opacityClass}`}>2025</p>
       </div>
@@ -111,8 +135,56 @@ function ScrollItem({ index }: { index: number }) {
 }
 
 export default function Page() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollTimeout = { current: null as NodeJS.Timeout | null };
+
+    const handleScroll = () => {
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+
+      scrollTimeout.current = setTimeout(() => {
+        if (!containerRef.current) return;
+
+        const items = Array.from(containerRef.current.querySelectorAll(".item")) as HTMLDivElement[];
+        if (!items.length) return;
+
+        const viewportCenter = window.innerHeight / 2;
+        let closest = items[0];
+        let minDistance = Infinity;
+
+        items.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const elementCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(elementCenter - viewportCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            closest = el;
+          }
+        });
+
+        const rect = closest.getBoundingClientRect();
+        const elementCenter = rect.top + rect.height / 2;
+        const offset = elementCenter - viewportCenter;
+
+        const start = window.scrollY;
+        const end = start + offset;
+
+        animate(start, end, {
+          duration: 1,
+          // ease: easeOut,
+          onUpdate: (latest) => window.scrollTo(0, latest),
+        });
+      }, 1000);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
+    <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <ScrollItem key={i} index={i} />
       ))}
