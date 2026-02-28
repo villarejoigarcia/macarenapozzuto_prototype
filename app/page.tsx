@@ -84,7 +84,8 @@ function ScrollItem({ index }: { index: number }) {
   }, []);
 
   const widthSpring = useSpring(scaleRaw, {
-    stiffness: 800,
+    // stiffness: 800,
+    stiffness: 1200,
     damping: 200,
     mass: 1,
   });
