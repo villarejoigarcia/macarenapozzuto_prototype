@@ -184,14 +184,20 @@ function ScrollItem({ index }: { index: number }) {
             
           />
           {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max flex transition-opacity duration-500 ${ isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          <div className={`absolute top-0 left-full h-full w-max flex ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
           >
             {images.length > 1 && images.slice(1).map((src, i) => (
 
               <img
                 key={i + 1}
                 src={src}
-                style={{ width: "auto", height: "100%", objectFit: "contain" }}
+                className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                style={{
+                  width: "auto",
+                  height: "100%",
+                  objectFit: "contain",
+                  transitionDelay: `${(isActive ? i : images.length - 2 - i) * 150}ms`,
+                }}
               />
 
             ))}
