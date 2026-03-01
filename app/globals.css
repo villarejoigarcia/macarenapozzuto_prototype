@@ -34,3 +34,7 @@ body {
   letter-spacing: -.02em;
   -webkit-font-smoothing: antialiased;
 }
+
+*::-webkit-scrollbar {
+  display: none;
+}

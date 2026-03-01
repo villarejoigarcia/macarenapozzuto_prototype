@@ -1,35 +1,27 @@
 "use client";
 
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
-import { motion, useScroll, useTransform, useSpring, animate, easeIn, easeInOut, easeOut } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { scrollPost } from './scroll-x';
 
 function ScrollItem({ index }: { index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const [textHeight, setTextHeight] = useState(0);
+  const pageScrollRafRef = useRef<number | null>(null);
   const { scrollY } = useScroll();
 
-  // const scaleRaw = useTransform(scrollY, () => {
-  // // const scale = useTransform(scrollY, () => {
-  //   if (!ref.current) return 0.5;
-
-  //   const rect = ref.current.getBoundingClientRect();
-
-  //   // const viewportCenter = window.innerHeight / 2;
-  //   // const elementCenter = rect.top + rect.height / 2;
-
-  //   const viewportCenter = 0;
-  //   const elementCenter = rect.top;
-
-  //   const distance = Math.abs(viewportCenter - elementCenter);
-  //   const maxDistance = window.innerHeight / 2;
-  //   const normalized = Math.min(distance / maxDistance, 1);
-
-  //   return 1 - normalized * 0.5;
-  // });
+  const images = [
+    `/images/item${index}/image1.webp`,
+    `/images/item${index}/image2.webp`,
+    `/images/item${index}/image3.webp`,
+    `/images/item${index}/image4.webp`,
+    `/images/item${index}/image5.webp`,
+    // Añade aquí más imágenes si es necesario
+  ];
 
   const scaleRaw = useTransform(scrollY, (latest) => {
-  if (!ref.current) return 0.5;
+  if (!ref.current) return 1;
 
   const rect = ref.current.getBoundingClientRect();
 
@@ -37,7 +29,7 @@ function ScrollItem({ index }: { index: number }) {
   let elementCenter;
 
   // if (latest === 0) {
-  if (latest < 5) {
+  if (latest < 50) {
     viewportCenter = 0;
     elementCenter = rect.top;
   } else {
@@ -49,10 +41,12 @@ function ScrollItem({ index }: { index: number }) {
   const maxDistance = window.innerHeight / 2;
   const normalized = Math.min(distance / maxDistance, 1);
 
-  return 1 - normalized * 0.5;
+  return 1 - normalized * 0.4;
 });
 
   const [isActive, setIsActive] = useState(false);
+  const [isHover, setIsHover] = useState(false);
+  const wasActiveRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", () => {
@@ -67,7 +61,7 @@ function ScrollItem({ index }: { index: number }) {
         const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
         setIsActive(active);
       } else {
-        const viewportTrigger = window.innerHeight / 2;
+        const viewportTrigger = window.innerHeight / 3;
         const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
         setIsActive(active);
       }
@@ -77,23 +71,17 @@ function ScrollItem({ index }: { index: number }) {
     return () => unsubscribe();
   }, [scrollY]);
 
-  useLayoutEffect(() => {
-    if (textRef.current) {
-      setTextHeight(textRef.current.scrollHeight);
-    }
-  }, []);
+  // useLayoutEffect(() => {
+  //   if (textRef.current) {
+  //     setTextHeight(textRef.current.scrollHeight);
+  //   }
+  // }, []);
 
   const widthSpring = useSpring(scaleRaw, {
-    // stiffness: 800,
     stiffness: 1200,
     damping: 200,
     mass: 1,
   });
-
-  // const width = useTransform(widthSpring, [0.333, 1], ["33.333%", "100%"]);
-  const width = useTransform(widthSpring, [0.5, 1], ["50%", "100%"]);
-
-  // const width = useTransform(scale, [0.3, 1], ["30%", "100%"]);
 
   const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
 
@@ -106,24 +94,115 @@ function ScrollItem({ index }: { index: number }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  return (
-    <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-      <motion.div
-        ref={ref}
-        style={{ width }}
-        className="item w-full"
-      >
-        <img
-          src={`/images/image${index}.webp`}
-          style={{ width: "100%", height: "auto" }}
-        />
-      </motion.div>
+  useEffect(() => {
+    if (!ref.current) return;
 
-      <div ref={textRef}
-        style={{
-          height: isMobile ? (isActive ? textHeight : 0) : 'auto'
-        }}
-        className={`overflow-hidden transition-all duration-1000 flex w-full box-border px-[10px] lg:my-[10px_5px] ${isActive && isMobile ? 'my-[10px_5px]' : 'p-0'} relative lg:absolute top-full left-0`}
+    if (wasActiveRef.current && !isActive) {
+      scrollPost(ref.current, 500);
+    }
+
+    wasActiveRef.current = isActive;
+  }, [isActive]);
+
+  // useEffect(() => {
+  //   if (isActive && isHover) {
+  //     setIsHover(false);
+  //   }
+  // }, [isActive, isHover]);
+
+  useEffect(() => {
+    return () => {
+      if (pageScrollRafRef.current !== null) {
+        cancelAnimationFrame(pageScrollRafRef.current);
+      }
+    };
+  }, []);
+
+  const animatePageScrollTo = (targetY: number, duration = 0) => {
+    if (pageScrollRafRef.current !== null) {
+      cancelAnimationFrame(pageScrollRafRef.current);
+    }
+
+    const startY = window.scrollY;
+    const delta = targetY - startY;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      // const easeOutQuart = progress * (2 - progress);
+      const nextY = startY + delta * easeOutQuart;
+
+      window.scrollTo({ top: nextY, behavior: "auto" });
+
+      if (progress < 1) {
+        pageScrollRafRef.current = requestAnimationFrame(step);
+      } else {
+        pageScrollRafRef.current = null;
+      }
+    };
+
+    pageScrollRafRef.current = requestAnimationFrame(step);
+  };
+
+  const handleClick = () => {
+    if (!ref.current) return;
+    const scrollToCenter = () => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
+      const target = Math.max(0, elementCenterY - window.innerHeight / 2);
+      animatePageScrollTo(target, 1000);
+    };
+
+    // First attempt (immediate), then retry shortly after to compensate
+    // for any in-progress width/transform animations that shift layout.
+    scrollToCenter();
+    // setTimeout(scrollToCenter, 500);
+  };
+
+  return (
+    // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
+     <div className={`lg:h-[60vh] w-full relative`}>
+      <div
+        ref={ref}
+        className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
+        onClick={handleClick}
+      >
+        <motion.div
+          style={{ scale: widthSpring }}
+          className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
+            >
+          {/* Show the first image directly */}
+          <img
+            key={0}
+            src={images[0]}
+            style={{ width: "auto", height: "100%", objectFit: "contain" }}
+            
+          />
+          {/* Overlay the rest of the images absolutely */}
+          <div className={`absolute top-0 left-full h-full w-max flex transition-opacity duration-500 ${ isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          >
+            {images.length > 1 && images.slice(1).map((src, i) => (
+
+              <img
+                key={i + 1}
+                src={src}
+                style={{ width: "auto", height: "100%", objectFit: "contain" }}
+              />
+
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      <div 
+      ref={textRef}
+        
+        className={`flex w-full p-[10px]`}
       >
         <p className={`lg:flex-1 flex-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
         <p className={`flex-1 grow-2 lg:grow-4 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
@@ -136,56 +215,11 @@ function ScrollItem({ index }: { index: number }) {
 }
 
 export default function Page() {
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   const scrollTimeout = { current: null as NodeJS.Timeout | null };
-
-  //   const handleScroll = () => {
-  //     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-
-  //     scrollTimeout.current = setTimeout(() => {
-  //       if (!containerRef.current) return;
-
-  //       const items = Array.from(containerRef.current.querySelectorAll(".item")) as HTMLDivElement[];
-  //       if (!items.length) return;
-
-  //       const viewportCenter = window.innerHeight / 2;
-  //       let closest = items[0];
-  //       let minDistance = Infinity;
-
-  //       items.forEach((el) => {
-  //         const rect = el.getBoundingClientRect();
-  //         const elementCenter = rect.top + rect.height / 2;
-  //         const distance = Math.abs(elementCenter - viewportCenter);
-
-  //         if (distance < minDistance) {
-  //           minDistance = distance;
-  //           closest = el;
-  //         }
-  //       });
-
-  //       const rect = closest.getBoundingClientRect();
-  //       const elementCenter = rect.top + rect.height / 2;
-  //       const offset = elementCenter - viewportCenter;
-
-  //       const start = window.scrollY;
-  //       const end = start + offset;
-
-  //       animate(start, end, {
-  //         duration: 1,
-  //         // ease: easeOut,
-  //         onUpdate: (latest) => window.scrollTo(0, latest),
-  //       });
-  //     }, 1000);
-  //   };
-
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
 
   return (
-    <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
+    // <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
+    <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh] overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <ScrollItem key={i} index={i} />
       ))}
