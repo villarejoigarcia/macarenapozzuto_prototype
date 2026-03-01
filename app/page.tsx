@@ -4,11 +4,20 @@ import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { scrollPost } from './scroll-x';
 
-function ScrollItem({ index }: { index: number }) {
+function ScrollItem({
+  index,
+  isActive,
+  onActivate,
+}: {
+  index: number;
+  isActive: boolean;
+  onActivate: (index: number) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const [textHeight, setTextHeight] = useState(0);
   const pageScrollRafRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
 
   const images = [
@@ -44,32 +53,30 @@ function ScrollItem({ index }: { index: number }) {
   return 1 - normalized * 0.4;
 });
 
-  const [isActive, setIsActive] = useState(false);
-  const [isHover, setIsHover] = useState(false);
   const wasActiveRef = useRef(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", () => {
       if (!ref.current) return;
 
       const rect = ref.current.getBoundingClientRect();
-      // const viewportTrigger = window.innerHeight / 2;
-      // const viewportTrigger = 0;
-      
-      if (!isMobile) {
-        const viewportTrigger = window.innerHeight / 3;
-        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
-        setIsActive(active);
-      } else {
-        const viewportTrigger = window.innerHeight / 3;
-        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
-        setIsActive(active);
-      }
+      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 3;
+      const activeByPosition = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
 
+      if (activeByPosition) {
+        onActivate(index);
+      }
     });
 
     return () => unsubscribe();
-  }, [scrollY]);
+  }, [scrollY, isMobile, onActivate, index]);
 
   // useLayoutEffect(() => {
   //   if (textRef.current) {
@@ -85,30 +92,15 @@ function ScrollItem({ index }: { index: number }) {
 
   const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   useEffect(() => {
     if (!ref.current) return;
 
     if (wasActiveRef.current && !isActive) {
-      scrollPost(ref.current, 500);
+      scrollPost(ref.current, 1334);
     }
 
     wasActiveRef.current = isActive;
   }, [isActive]);
-
-  // useEffect(() => {
-  //   if (isActive && isHover) {
-  //     setIsHover(false);
-  //   }
-  // }, [isActive, isHover]);
 
   useEffect(() => {
     return () => {
@@ -130,9 +122,12 @@ function ScrollItem({ index }: { index: number }) {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      // const easeOutQuart = progress * (2 - progress);
-      const nextY = startY + delta * easeOutQuart;
+      // const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      // const easeOutQuart = 1 - Math.pow(1 - progress, 3);
+      const ease = progress < 0.5
+            ? 2 * progress * progress
+            : -1 + (4 - 2 * progress) * progress;
+      const nextY = startY + delta * ease;
 
       window.scrollTo({ top: nextY, behavior: "auto" });
 
@@ -147,6 +142,7 @@ function ScrollItem({ index }: { index: number }) {
   };
 
   const handleClick = () => {
+    onActivate(index);
     if (!ref.current) return;
     const scrollToCenter = () => {
       if (!ref.current) return;
@@ -156,10 +152,7 @@ function ScrollItem({ index }: { index: number }) {
       animatePageScrollTo(target, 1000);
     };
 
-    // First attempt (immediate), then retry shortly after to compensate
-    // for any in-progress width/transform animations that shift layout.
     scrollToCenter();
-    // setTimeout(scrollToCenter, 500);
   };
 
   return (
@@ -173,8 +166,6 @@ function ScrollItem({ index }: { index: number }) {
         <motion.div
           style={{ scale: widthSpring }}
           className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
-          onMouseEnter={() => setIsHover(true)}
-          onMouseLeave={() => setIsHover(false)}
             >
           {/* Show the first image directly */}
           <img
@@ -196,7 +187,7 @@ function ScrollItem({ index }: { index: number }) {
                   width: "auto",
                   height: "100%",
                   objectFit: "contain",
-                  transitionDelay: `${(isActive ? i : images.length - 2 - i) * 150}ms`,
+                  transitionDelay: `${(isActive ? i : images.length - 2 - i) * 100}ms`,
                 }}
               />
 
@@ -221,13 +212,19 @@ function ScrollItem({ index }: { index: number }) {
 }
 
 export default function Page() {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
 
   return (
     // <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
     <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh] overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-        <ScrollItem key={i} index={i} />
+        <ScrollItem
+          key={i}
+          index={i}
+          isActive={activeIndex === i}
+          onActivate={setActiveIndex}
+        />
       ))}
     </div>
   );
