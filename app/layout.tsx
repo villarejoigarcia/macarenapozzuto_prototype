@@ -1,4 +1,5 @@
 import "./globals.css";
+import Footer from './footer';
 
 export default function RootLayout({
   children,
@@ -9,7 +10,7 @@ export default function RootLayout({
 
     <html lang="en">
 
-      <body className="m-0">
+      <body className="m-0 relative">
 
         <header className="fixed z-50 top-0 left-0 p-[10px] flex w-full">
 
@@ -26,6 +27,8 @@ export default function RootLayout({
         </header>
 
         {children}
+
+        <Footer/>
 
       </body>
       

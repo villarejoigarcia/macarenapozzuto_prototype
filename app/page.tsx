@@ -11,7 +11,7 @@ function ScrollItem({
 }: {
   index: number;
   isActive: boolean;
-  onActivate: (index: number) => void;
+  onActivate: (index: number | null) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -67,16 +67,18 @@ function ScrollItem({
       if (!ref.current) return;
 
       const rect = ref.current.getBoundingClientRect();
-      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 3;
+      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 2;
       const activeByPosition = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
 
       if (activeByPosition) {
         onActivate(index);
+      } else if (isActive) {
+        onActivate(null);
       }
     });
 
     return () => unsubscribe();
-  }, [scrollY, isMobile, onActivate, index]);
+  }, [scrollY, isMobile, onActivate, index, isActive]);
 
   // useLayoutEffect(() => {
   //   if (textRef.current) {
@@ -149,7 +151,7 @@ function ScrollItem({
       const rect = ref.current.getBoundingClientRect();
       const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
       const target = Math.max(0, elementCenterY - window.innerHeight / 2);
-      animatePageScrollTo(target, 1000);
+      animatePageScrollTo(target, 666);
     };
 
     scrollToCenter();
