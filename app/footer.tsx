@@ -6,7 +6,7 @@ export default function Footer() {
         <div className={'h-screen flex flex-col gap-[15px] justify-end p-[20px] absolute w-full bottom-0'}>
             <div className="flex w-full justify-between items-end">
                 <p className="lg:flex-none flex-1">© 2026</p>
-                <div className="flex justify-between lg:flex-none flex-[.875]">
+                <div className="flex justify-between lg:flex-none flex-[2.15]">
                     {/* <div className="flex">
                         <p className="mr-[1em]">Email</p>
                         <p>Instagram</p>

@@ -67,7 +67,7 @@ function ScrollItem({
       if (!ref.current) return;
 
       const rect = ref.current.getBoundingClientRect();
-      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 2;
+      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 3;
       const activeByPosition = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
 
       if (activeByPosition) {
