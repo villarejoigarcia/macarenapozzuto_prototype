@@ -1,5 +1,4 @@
 import "./globals.css";
-import Footer from './footer';
 
 export default function RootLayout({
   children,
@@ -28,7 +27,7 @@ export default function RootLayout({
 
         {children}
 
-        <Footer/>
+      
 
       </body>
       

@@ -3,21 +3,16 @@
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { scrollPost } from './scroll-x';
+import Footer from './footer';
 
-function ScrollItem({
-  index,
-  isActive,
-  onActivate,
-}: {
-  index: number;
-  isActive: boolean;
-  onActivate: (index: number | null) => void;
-}) {
+function ScrollItem({ index }: { index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const [textHeight, setTextHeight] = useState(0);
   const pageScrollRafRef = useRef<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const prevPageYRef = useRef(0);
+  const hadInnerScrollRef = useRef(false);
+  const isProgrammaticYScrollRef = useRef(false);
   const { scrollY } = useScroll();
 
   const images = [
@@ -50,35 +45,65 @@ function ScrollItem({
   const maxDistance = window.innerHeight / 2;
   const normalized = Math.min(distance / maxDistance, 1);
 
-  return 1 - normalized * 0.4;
+  return 1 - normalized * 0.333;
 });
 
+  const [isActive, setIsActive] = useState(false);
+  const [isHover, setIsHover] = useState(false);
   const wasActiveRef = useRef(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
-  useEffect(() => {
+    prevPageYRef.current = window.scrollY;
+
     const unsubscribe = scrollY.on("change", () => {
+
       if (!ref.current) return;
 
-      const rect = ref.current.getBoundingClientRect();
-      const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 3;
-      const activeByPosition = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+      // restore
+      
+      const currentPageY = window.scrollY;
+      const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
+      const hasVerticalPageScroll = verticalDelta > 0.5;
 
-      if (activeByPosition) {
-        onActivate(index);
-      } else if (isActive) {
-        onActivate(null);
+      if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll && !isProgrammaticYScrollRef.current) {
+        scrollPost(ref.current, 1000);
+        hadInnerScrollRef.current = false;
       }
+
+      prevPageYRef.current = currentPageY;
+
+      // activator
+
+      const rect = ref.current.getBoundingClientRect();
+      
+      if (!isMobile) {
+        const viewportTrigger = window.innerHeight / 2;
+        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+        setIsActive(active);
+      } else {
+        const viewportTrigger = window.innerHeight / 3;
+        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+        setIsActive(active);
+      }
+
     });
 
     return () => unsubscribe();
-  }, [scrollY, isMobile, onActivate, index, isActive]);
+  }, [scrollY, isActive]);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const node = ref.current;
+    const handleInnerScroll = () => {
+      const offset = node.scrollLeft;
+      hadInnerScrollRef.current = offset > 0;
+    };
+
+    node.addEventListener("scroll", handleInnerScroll, { passive: true });
+    return () => node.removeEventListener("scroll", handleInnerScroll);
+  }, []);
 
   // useLayoutEffect(() => {
   //   if (textRef.current) {
@@ -94,28 +119,45 @@ function ScrollItem({
 
   const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
 
-  useEffect(() => {
-    if (!ref.current) return;
-
-    if (wasActiveRef.current && !isActive) {
-      scrollPost(ref.current, 1334);
-    }
-
-    wasActiveRef.current = isActive;
-  }, [isActive]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    return () => {
-      if (pageScrollRafRef.current !== null) {
-        cancelAnimationFrame(pageScrollRafRef.current);
-      }
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // useEffect(() => {
+  //   if (!ref.current) return;
+
+  //   if (wasActiveRef.current && !isActive) {
+  //     scrollPost(ref.current, 100);
+  //   }
+
+  //   wasActiveRef.current = isActive;
+  // }, [isActive]);
+
+  // useEffect(() => {
+  //   if (isActive && isHover) {
+  //     setIsHover(false);
+  //   }
+  // }, [isActive, isHover]);
+
+  // useEffect(() => {
+  //   return () => {
+  //     if (pageScrollRafRef.current !== null) {
+  //       cancelAnimationFrame(pageScrollRafRef.current);
+  //     }
+  //   };
+  // }, []);
+
   const animatePageScrollTo = (targetY: number, duration = 0) => {
-    if (pageScrollRafRef.current !== null) {
-      cancelAnimationFrame(pageScrollRafRef.current);
-    }
+    // if (pageScrollRafRef.current !== null) {
+    //   cancelAnimationFrame(pageScrollRafRef.current);
+    // }
+
+    isProgrammaticYScrollRef.current = true;
 
     const startY = window.scrollY;
     const delta = targetY - startY;
@@ -124,8 +166,7 @@ function ScrollItem({
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      // const easeOutQuart = 1 - Math.pow(1 - progress, 3);
+      // const ease = 1 - Math.pow(1 - progress, 4);
       const ease = progress < 0.5
             ? 2 * progress * progress
             : -1 + (4 - 2 * progress) * progress;
@@ -137,6 +178,7 @@ function ScrollItem({
         pageScrollRafRef.current = requestAnimationFrame(step);
       } else {
         pageScrollRafRef.current = null;
+        isProgrammaticYScrollRef.current = false;
       }
     };
 
@@ -144,7 +186,6 @@ function ScrollItem({
   };
 
   const handleClick = () => {
-    onActivate(index);
     if (!ref.current) return;
     const scrollToCenter = () => {
       if (!ref.current) return;
@@ -159,15 +200,18 @@ function ScrollItem({
 
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-     <div className={`lg:h-[60vh] w-full relative`}>
+     <div className={`lg:h-[66.667vh] w-full relative`}>
       <div
         ref={ref}
-        className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
+        className={`item w-full h-full relative cursor-pointer flex justify-center ${isHover || isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
         onClick={handleClick}
+        onMouseEnter={() => !isMobile && setIsHover(true)}
+        onMouseLeave={() => !isMobile && setIsHover(false)}
       >
         <motion.div
           style={{ scale: widthSpring }}
           className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
+          
             >
           {/* Show the first image directly */}
           <img
@@ -177,19 +221,19 @@ function ScrollItem({
             
           />
           {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max flex ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          <div className={`absolute top-0 left-full h-full w-max flex gap-[3px] px-[3px] ${isHover || isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
           >
             {images.length > 1 && images.slice(1).map((src, i) => (
 
               <img
                 key={i + 1}
                 src={src}
-                className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-500 ${isHover || isActive ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   width: "auto",
                   height: "100%",
                   objectFit: "contain",
-                  transitionDelay: `${(isActive ? i : images.length - 2 - i) * 100}ms`,
+                  transitionDelay: `${(isHover || isActive ? i : images.length - 2 - i) * 100}ms`,
                 }}
               />
 
@@ -214,20 +258,49 @@ function ScrollItem({
 }
 
 export default function Page() {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const pageTopRafRef = useRef<number | null>(null);
+
+  // scroll top
+
+  const animatePageScrollToTop = (duration = 700) => {
+
+    const startY = window.scrollY;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress;
+      const nextY = startY * (1 - ease);
+
+      window.scrollTo({ top: nextY, behavior: "auto" });
+
+      if (progress < 1) {
+        pageTopRafRef.current = requestAnimationFrame(step);
+      } else {
+        pageTopRafRef.current = null;
+      }
+    };
+
+    pageTopRafRef.current = requestAnimationFrame(step);
+  };
 
 
   return (
     // <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
-    <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh] overflow-hidden">
-      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-        <ScrollItem
-          key={i}
-          index={i}
-          isActive={activeIndex === i}
-          onActivate={setActiveIndex}
-        />
-      ))}
-    </div>
+    <>
+      <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh] overflow-hidden">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <ScrollItem key={i} index={i} />
+        ))}
+      </div>
+
+      <div onClick={() => animatePageScrollToTop(5000)}>
+        <Footer />
+      </div>
+    </>
   );
 }
