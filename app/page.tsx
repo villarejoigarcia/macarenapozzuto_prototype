@@ -33,7 +33,7 @@ function ScrollItem({ index }: { index: number }) {
   let elementCenter;
 
   // if (latest === 0) {
-  if (latest < 50) {
+  if (latest < 100) {
     viewportCenter = 0;
     elementCenter = rect.top;
   } else {
