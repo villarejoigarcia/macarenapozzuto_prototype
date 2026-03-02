@@ -292,9 +292,9 @@ export default function Page() {
 
   useEffect(() => {
     // Prevent browser scroll restoration on reload
-    // if ("scrollRestoration" in window.history) {
-    //   window.history.scrollRestoration = "manual";
-    // }
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
 
     const scrollToBottom = () => {
       const maxScrollY = Math.max(
@@ -307,14 +307,16 @@ export default function Page() {
 
     // Wait for layout + images to stabilize
     const handleLoad = () => {
-      // requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
           scrollToBottom();
 
           autoStartTimeoutRef.current = window.setTimeout(() => {
             animatePageScrollToTop(5000);
             autoStartTimeoutRef.current = null;
           }, 1000);
-      // });
+        });
+      });
     };
 
     if (document.readyState === "complete") {
