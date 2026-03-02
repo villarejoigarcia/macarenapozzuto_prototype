@@ -307,7 +307,7 @@ export default function Page() {
 
     // Wait for layout + images to stabilize
     const handleLoad = () => {
-      requestAnimationFrame(() => {
+      // requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           scrollToBottom();
 
@@ -316,7 +316,7 @@ export default function Page() {
             autoStartTimeoutRef.current = null;
           }, 1000);
         });
-      });
+      // });
     };
 
     if (document.readyState === "complete") {
