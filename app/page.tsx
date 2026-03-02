@@ -82,7 +82,7 @@ function ScrollItem({ index }: { index: number }) {
         const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
         setIsActive(active);
       } else {
-        const viewportTrigger = window.innerHeight / 3;
+        const viewportTrigger = window.innerHeight / 2;
         const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
         setIsActive(active);
       }
@@ -192,7 +192,7 @@ function ScrollItem({ index }: { index: number }) {
       const rect = ref.current.getBoundingClientRect();
       const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
       const target = Math.max(0, elementCenterY - window.innerHeight / 2);
-      animatePageScrollTo(target, 666);
+      animatePageScrollTo(target, 1000);
     };
 
     scrollToCenter();
@@ -210,7 +210,8 @@ function ScrollItem({ index }: { index: number }) {
       >
         <motion.div
           style={{ scale: widthSpring }}
-          className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
+          // className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
+          className="origin-center lg:w-fit w-[75%] h-full will-change-transform flex justify-center"
           
             >
           {/* Show the first image directly */}
@@ -221,14 +222,14 @@ function ScrollItem({ index }: { index: number }) {
             
           />
           {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max flex gap-[3px] px-[3px] ${isHover || isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          <div className={`absolute top-0 left-full h-full w-max pl-[3px] flex ${isHover || isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
           >
             {images.length > 1 && images.slice(1).map((src, i) => (
 
               <img
                 key={i + 1}
                 src={src}
-                className={`transition-opacity duration-500 ${isHover || isActive ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-500 pr-[3px] ${isHover || isActive ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   width: "auto",
                   height: "100%",
@@ -260,10 +261,11 @@ function ScrollItem({ index }: { index: number }) {
 export default function Page() {
 
   const pageTopRafRef = useRef<number | null>(null);
+  const autoStartTimeoutRef = useRef<number | null>(null);
 
   // scroll top
 
-  const animatePageScrollToTop = (duration = 700) => {
+  const animatePageScrollToTop = (duration = 0) => {
 
     const startY = window.scrollY;
     const startTime = performance.now();
@@ -287,6 +289,26 @@ export default function Page() {
 
     pageTopRafRef.current = requestAnimationFrame(step);
   };
+
+  useEffect(() => {
+    const maxScrollY = Math.max(
+      0,
+      document.documentElement.scrollHeight - window.innerHeight
+    );
+
+    window.scrollTo({ top: maxScrollY, behavior: "auto" });
+
+    autoStartTimeoutRef.current = window.setTimeout(() => {
+      animatePageScrollToTop(5000);
+      autoStartTimeoutRef.current = null;
+    }, 1000);
+
+    return () => {
+      if (autoStartTimeoutRef.current !== null) {
+        window.clearTimeout(autoStartTimeoutRef.current);
+      }
+    };
+  }, []);
 
 
   return (

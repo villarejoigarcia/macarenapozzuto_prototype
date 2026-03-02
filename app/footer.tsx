@@ -4,7 +4,7 @@ export default function Footer() {
 
     return (
         <div className={'h-screen flex flex-col gap-[15px] justify-end p-[20px] absolute w-full bottom-0'}>
-            <div className="flex w-full justify-between lg:my-0 my-auto lg:relative absolute w-full left-0 lg:px-0 px-[10px] lg:top-0 top-1/2 lg:translate-none -translate-y-full">
+            <div className="flex w-full justify-between lg:my-0 my-auto lg:relative absolute w-full left-0 lg:px-0 px-[10px] lg:top-0 top-1/2 lg:translate-none -translate-y-1/2">
                 <p className="lg:flex-none flex-2">© 2026</p>
                 <div className="flex justify-between lg:flex-none flex-[1.2]">
                     {/* <div className="flex">
