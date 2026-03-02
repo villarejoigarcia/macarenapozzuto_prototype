@@ -291,19 +291,40 @@ export default function Page() {
   };
 
   useEffect(() => {
-    const maxScrollY = Math.max(
-      0,
-      document.documentElement.scrollHeight - window.innerHeight
-    );
+    // Prevent browser scroll restoration on reload
+    // if ("scrollRestoration" in window.history) {
+    //   window.history.scrollRestoration = "manual";
+    // }
 
-    window.scrollTo({ top: maxScrollY, behavior: "auto" });
+    const scrollToBottom = () => {
+      const maxScrollY = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
 
-    autoStartTimeoutRef.current = window.setTimeout(() => {
-      animatePageScrollToTop(5000);
-      autoStartTimeoutRef.current = null;
-    }, 1000);
+      window.scrollTo({ top: maxScrollY, behavior: "auto" });
+    };
+
+    // Wait for layout + images to stabilize
+    const handleLoad = () => {
+      // requestAnimationFrame(() => {
+          scrollToBottom();
+
+          autoStartTimeoutRef.current = window.setTimeout(() => {
+            animatePageScrollToTop(5000);
+            autoStartTimeoutRef.current = null;
+          }, 1000);
+      // });
+    };
+
+    if (document.readyState === "complete") {
+      handleLoad();
+    } else {
+      window.addEventListener("load", handleLoad);
+    }
 
     return () => {
+      window.removeEventListener("load", handleLoad);
       if (autoStartTimeoutRef.current !== null) {
         window.clearTimeout(autoStartTimeoutRef.current);
       }
