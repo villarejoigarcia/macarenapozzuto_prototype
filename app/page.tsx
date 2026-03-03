@@ -329,7 +329,7 @@ export default function Page() {
       ))}
     </div>
     
-    <div onClick={() => animatePageScrollToTop(5000)}>
+    <div onClick={() => animatePageScrollToTop(3000)}>
       <Footer/>
     </div>
     </>
