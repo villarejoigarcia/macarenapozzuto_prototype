@@ -1,22 +1,18 @@
 "use client";
 
-import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { scrollPost } from './scroll-x';
-import Footer from './footer';
-import { Drag } from './drag';
 
-function ScrollItem({ index }: { index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [textHeight, setTextHeight] = useState(0);
-  const pageScrollRafRef = useRef<number | null>(null);
-  const prevPageYRef = useRef(0);
-  const hadInnerScrollRef = useRef(false);
-  const isProgrammaticYScrollRef = useRef(false);
-  const { scrollY } = useScroll();
+function ScrollItem({
+  index,
+  onOpen,
+}: {
+  index: number;
+  onOpen: (index: number) => void;
+}) {
 
-  const images = [
+    const images = [
     `/images/item${index}/image1.webp`,
     `/images/item${index}/image2.webp`,
     `/images/item${index}/image3.webp`,
@@ -24,6 +20,12 @@ function ScrollItem({ index }: { index: number }) {
     `/images/item${index}/image5.webp`,
     // Añade aquí más imágenes si es necesario
   ];
+
+  const [isHover, setIsHover] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
 
   const scaleRaw = useTransform(scrollY, (latest) => {
     if (!ref.current) return 1;
@@ -33,8 +35,8 @@ function ScrollItem({ index }: { index: number }) {
     let viewportCenter;
     let elementCenter;
 
-    // if (latest === 0) {
-    if (latest < 50) {
+    if (latest === 0) {
+    // if (latest < 5) {
       viewportCenter = 0;
       elementCenter = rect.top;
     } else {
@@ -46,310 +48,175 @@ function ScrollItem({ index }: { index: number }) {
     const maxDistance = window.innerHeight / 2;
     const normalized = Math.min(distance / maxDistance, 1);
 
-    return 1 - normalized * 0.333;
+    return 1 - normalized * 0.5;
   });
 
-  const [isActive, setIsActive] = useState(false);
-  const [isHover, setIsHover] = useState(false);
-  const wasActiveRef = useRef(false);
-
-  useEffect(() => {
-
-    prevPageYRef.current = window.scrollY;
-
-    const unsubscribe = scrollY.on("change", () => {
-
-      if (!ref.current) return;
-
-      // restore
-
-      const currentPageY = window.scrollY;
-      const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
-      const hasVerticalPageScroll = verticalDelta > 0.5;
-
-      if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll && !isProgrammaticYScrollRef.current) {
-        scrollPost(ref.current, 1000);
-        hadInnerScrollRef.current = false;
-      }
-
-      prevPageYRef.current = currentPageY;
-
-      // activator
-
-      const rect = ref.current.getBoundingClientRect();
-
-      if (!isMobile) {
-        const viewportTrigger = window.innerHeight / 2;
-        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
-        setIsActive(active);
-      } else {
-        const viewportTrigger = window.innerHeight / 2;
-        const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
-        setIsActive(active);
-      }
-
-    });
-
-    return () => unsubscribe();
-  }, [scrollY, isActive]);
-
-  useEffect(() => {
-    if (!ref.current) return;
-
-    const node = ref.current;
-    const handleInnerScroll = () => {
-      const offset = node.scrollLeft;
-      hadInnerScrollRef.current = offset > 0;
-    };
-
-    node.addEventListener("scroll", handleInnerScroll, { passive: true });
-    return () => node.removeEventListener("scroll", handleInnerScroll);
-  }, []);
-
-  // useLayoutEffect(() => {
-  //   if (textRef.current) {
-  //     setTextHeight(textRef.current.scrollHeight);
-  //   }
-  // }, []);
-
+  // 🔹 Usamos useSpring para suavizar la transición
   const widthSpring = useSpring(scaleRaw, {
     stiffness: 1200,
     damping: 200,
     mass: 1,
   });
 
-  const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
+  const width = useTransform(widthSpring, [0.5, 1], ["50%", "100%"]);
 
-  const [isMobile, setIsMobile] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
-  // useEffect(() => {
-  //   if (!ref.current) return;
+    const unsubscribe = scrollY.on("change", () => {
 
-  //   if (wasActiveRef.current && !isActive) {
-  //     scrollPost(ref.current, 100);
-  //   }
-
-  //   wasActiveRef.current = isActive;
-  // }, [isActive]);
-
-  // useEffect(() => {
-  //   if (isActive && isHover) {
-  //     setIsHover(false);
-  //   }
-  // }, [isActive, isHover]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     if (pageScrollRafRef.current !== null) {
-  //       cancelAnimationFrame(pageScrollRafRef.current);
-  //     }
-  //   };
-  // }, []);
-
-  Drag(ref as React.RefObject<HTMLElement>, !isMobile);
-
-  const animatePageScrollTo = (targetY: number, duration = 1000) => {
-    // if (pageScrollRafRef.current !== null) {
-    //   cancelAnimationFrame(pageScrollRafRef.current);
-    // }
-
-    isProgrammaticYScrollRef.current = true;
-
-    const startY = window.scrollY;
-    const delta = targetY - startY;
-    const startTime = performance.now();
-
-    const step = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // const ease = 1 - Math.pow(1 - progress, 4);
-      const ease = progress < 0.5
-        ? 2 * progress * progress
-        : -1 + (4 - 2 * progress) * progress;
-      const nextY = startY + delta * ease;
-
-      window.scrollTo({ top: nextY, behavior: "auto" });
-
-      if (progress < 1) {
-        pageScrollRafRef.current = requestAnimationFrame(step);
-      } else {
-        pageScrollRafRef.current = null;
-        isProgrammaticYScrollRef.current = false;
-      }
-    };
-
-    pageScrollRafRef.current = requestAnimationFrame(step);
-  };
-
-  const handleClick = () => {
-    if (!ref.current) return;
-    const scrollToCenter = () => {
       if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
-      const target = Math.max(0, elementCenterY - window.innerHeight / 2);
-      animatePageScrollTo(target);
-    };
 
-    scrollToCenter();
-  };
+          
+      // activator
+
+      const rect = ref.current.getBoundingClientRect();
+
+      const viewportTrigger = window.innerHeight / 3;
+      const active = rect.top <= viewportTrigger && rect.bottom >= viewportTrigger;
+      setIsActive(active);
+
+    });
+
+    return () => unsubscribe();
+  }, [scrollY, isActive]);
+  
 
   return (
-    // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-    <div className={`lg:h-[66.667vh] w-full relative`}>
-      <div
-        ref={ref}
-        className={`item w-full h-full relative flex justify-center ${isHover || isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
-
-
+    <div className="relative">
+      <div 
+      ref={ref}
+      className={`overflow-scroll transition-padding duration-1000 ${isOpen ? 'lg:px-[33.333%]' : 'lg:px-[40%]'}`}
+      onClick={() => setIsOpen(true)}
       >
-        <motion.div
-          style={{ scale: widthSpring }}
-          // className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
-          className="origin-center cursor-pointer lg:w-fit w-[75%] h-full will-change-transform flex justify-center"
-          onMouseEnter={() => !isMobile && setIsHover(true)}
-          onMouseLeave={() => !isMobile && setIsHover(false)}
-          onClick={handleClick}
+      <motion.div
+        
+        style={{ width }}
+        // onClick={() => onOpen(index)}
+        className={`item w-full mx-auto`}
+      >
+          <div 
+            className="relative"
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => {
+              setIsOpen(false)
+              setIsHover(false)
+              if (!ref.current) return;
+                scrollPost(ref.current, 1000);
 
-        >
-          {/* Show the first image directly */}
-          <img
-            key={0}
-            src={images[0]}
-            style={{ width: "auto", height: "100%", objectFit: "contain" }}
-
-          />
-          {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max pl-[3px] flex ${isHover || isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
+            }}
           >
-            {images.length > 1 && images.slice(1).map((src, i) => (
+            <img
+              className=""
+              src={`/images/item${index}/image1.webp`}
+              style={{ width: "100%", height: "auto" }}
+              
+            />
+            <div className={`absolute top-0 left-full h-full w-max pl-[3px] flex`}
+            >
+              {images.length > 1 && images.slice(1).map((src, i) => (
 
-              <img
-                key={i + 1}
-                src={src}
-                className={`transition-opacity duration-500 pr-[3px] ${isHover || isActive ? 'opacity-100' : 'opacity-0'}`}
-                style={{
-                  width: "auto",
-                  height: "100%",
-                  objectFit: "contain",
-                  transitionDelay: `${(isHover || isActive ? i : images.length - 2 - i) * 100}ms`,
-                }}
-              />
+                <img
+                  key={i + 1}
+                  src={src}
+                  className={`transition-opacity duration-500 pr-[3px] ${isHover ? 'opacity-100' : 'opacity-0'}`}
+                  style={{
+                    width: "auto",
+                    height: "100%",
+                    objectFit: "contain",
+                    transitionDelay: `${(isHover ? i : images.length - 2 - i) * 100}ms`,
+                  }}
+                />
 
-            ))}
+              ))}
+            </div>
           </div>
-        </motion.div>
+      </motion.div>
       </div>
-
-      <div
-        ref={textRef}
-
-        className={`flex w-full p-[10px]`}
-      >
-        <p className={`lg:flex-1 flex-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
-        <p className={`flex-1 grow-2 lg:grow-4 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
-        <p className={`flex-1 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Brand identity</p>
-        <p className={`flex-0 text-right opacity-0 transition-opacity duration-500 ${opacityClass}`}>2025</p>
+      {/* <div className={`flex w-full justify-between transition-all duration-1000 px-[10px] overflow-hidden ${isActive ? 'h-[35px] py-[10px] opacity-100' : 'h-0 py-0 opacity-0'}`}> */}
+      <div className={`absolute top-full left-0 flex w-full justify-between transition-all duration-1000 p-[10px] overflow-hidden ${isHover ? 'opacity-100' : 'opacity-0'}`}>
+        <p className="flex-1">1.</p>
+        <p className="flex-1 grow-4">Fotosprint</p>
+        <p className="flex-1">Brand identity</p>
+        <p className="flex-0 text-right">2025</p>
       </div>
-
     </div>
   );
 }
 
 export default function Page() {
+  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [projectsHidden, setProjectsHidden] = useState(false);
+  const [showProject, setShowProject] = useState(false);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const pageTopRafRef = useRef<number | null>(null);
-  const autoStartTimeoutRef = useRef<number | null>(null);
+  const handleOpenProject = (index: number) => {
+    setSelectedProject(index);
+    setShowProject(false);
+    setProjectsHidden(true);
 
-  // scroll top
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
 
-  const animatePageScrollToTop = (duration = 3000) => {
+    transitionTimeoutRef.current = setTimeout(() => {
+      setShowProject(true);
+    }, 500);
+  };
 
-    const startY = window.scrollY;
-    const startTime = performance.now();
+  const handleCloseProject = () => {
+    setShowProject(false);
 
-    const step = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const ease = progress < 0.5
-        ? 2 * progress * progress
-        : -1 + (4 - 2 * progress) * progress;
-      const nextY = startY * (1 - ease);
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
 
-      window.scrollTo({ top: nextY, behavior: "auto" });
-
-      if (progress < 1) {
-        pageTopRafRef.current = requestAnimationFrame(step);
-      } else {
-        pageTopRafRef.current = null;
-      }
-    };
-
-    pageTopRafRef.current = requestAnimationFrame(step);
+    transitionTimeoutRef.current = setTimeout(() => {
+      setProjectsHidden(false);
+      setSelectedProject(null);
+    }, 500);
   };
 
   useEffect(() => {
-    // Prevent browser scroll restoration on reload
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-
-    const scrollToBottom = () => {
-      const maxScrollY = Math.max(
-        0,
-        document.documentElement.scrollHeight - window.innerHeight
-      );
-
-      window.scrollTo({ top: maxScrollY, behavior: "auto" });
-    };
-
-    // Wait for layout + images to stabilize
-    const handleLoad = () => {
-      // requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToBottom();
-
-        autoStartTimeoutRef.current = window.setTimeout(() => {
-          animatePageScrollToTop();
-          autoStartTimeoutRef.current = null;
-        }, 1000);
-      });
-      // });
-    };
-
-    if (document.readyState === "complete") {
-      handleLoad();
-    } else {
-      window.addEventListener("load", handleLoad);
-    }
-
     return () => {
-      window.removeEventListener("load", handleLoad);
-      if (autoStartTimeoutRef.current !== null) {
-        window.clearTimeout(autoStartTimeoutRef.current);
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
       }
     };
   }, []);
 
-
   return (
-    // <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
     <>
-      <div className="wrapper flex flex-col items-center pb-[100dvh] overflow-hidden">
+      <div
+        id="projects"
+        className={`flex flex-col gap-[5px] items-center w-full mx-auto pb-[100dvh] transition-opacity duration-500 ${
+          projectsHidden ? "opacity-30 blur-xs pointer-events-none" : "opacity-100 blur-none"
+        }`}
+      >
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <ScrollItem key={i} index={i} />
+          <ScrollItem key={i} index={i} onOpen={handleOpenProject} />
         ))}
       </div>
 
-      <div onClick={() => animatePageScrollToTop()}>
-        <Footer />
+      <div
+        id="project"
+        onClick={handleCloseProject}
+        className={`fixed inset-0 overflow-y-auto transition-opacity duration-500 ${
+          showProject ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        {selectedProject && (
+          <div className="mx-auto flex w-full flex-col gap-[5px]">
+            {[1, 2, 3, 4, 5].map((imageIndex) => (
+              <img
+                key={imageIndex}
+                src={`/images/item${selectedProject}/image${imageIndex}.webp`}
+                style={{ width: "100%", height: "auto" }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
