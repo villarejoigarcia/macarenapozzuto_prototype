@@ -87,23 +87,25 @@ function ScrollItem({
     <div className="relative">
       <div 
       ref={ref}
-      className={`overflow-scroll transition-padding duration-1000 ${isOpen ? 'lg:px-[33.333%]' : 'lg:px-[40%]'}`}
+      // className={`overflow-scroll transition-padding duration-1000 ${isOpen ? 'lg:px-[33.333%]' : 'lg:px-[40%]'}`}
+      className={`lg:px-[40%] overflow-scroll transition-padding duration-1000`}
       onClick={() => setIsOpen(true)}
       >
       <motion.div
         
         style={{ width }}
-        // onClick={() => onOpen(index)}
+        onClick={() => onOpen(index)}
         className={`item w-full mx-auto`}
       >
           <div 
             className="relative"
             onMouseEnter={() => setIsHover(true)}
             onMouseLeave={() => {
-              setIsOpen(false)
+              // setIsOpen(false)
+              if (isOpen) return;
               setIsHover(false)
-              if (!ref.current) return;
-                scrollPost(ref.current, 1000);
+              // if (!ref.current) return;
+              // scrollPost(ref.current, 1000);
 
             }}
           >
@@ -202,17 +204,17 @@ export default function Page() {
       <div
         id="project"
         onClick={handleCloseProject}
-        className={`fixed inset-0 overflow-y-auto transition-opacity duration-500 ${
+        className={`fixed inset-0 lg:overflow-y-auto lg:h-full overflow-x-auto transition-opacity duration-500 ${
           showProject ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
         {selectedProject && (
-          <div className="mx-auto flex w-full flex-col gap-[5px]">
+          <div className="mx-auto flex lg:flex-row flex-col w-full lg:h-full flex-col gap-[5px]">
             {[1, 2, 3, 4, 5].map((imageIndex) => (
               <img
                 key={imageIndex}
                 src={`/images/item${selectedProject}/image${imageIndex}.webp`}
-                style={{ width: "100%", height: "auto" }}
+                className="w-full lg:w-auto lg:h-full"
               />
             ))}
           </div>

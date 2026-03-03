@@ -22,6 +22,7 @@ function ScrollItem({
   const prevPageYRef = useRef(0);
   const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
+  const [isHover, setIsHover] = useState(false);
 
   const images = [
     `/images/item${index}/image1.webp`,
@@ -53,7 +54,7 @@ function ScrollItem({
   const maxDistance = window.innerHeight / 2;
   const normalized = Math.min(distance / maxDistance, 1);
 
-  return 1 - normalized * 0.333;
+  return 1 - normalized * 0.25;
 });
 
   // const wasActiveRef = useRef(false);
@@ -71,16 +72,16 @@ function ScrollItem({
     const unsubscribe = scrollY.on("change", () => {
       if (!ref.current) return;
 
-      const currentPageY = window.scrollY;
-      const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
-      const hasVerticalPageScroll = verticalDelta > 0.5;
+      // const currentPageY = window.scrollY;
+      // const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
+      // const hasVerticalPageScroll = verticalDelta > 0.5;
 
-      if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll) {
-        scrollPost(ref.current, 1000);
-        hadInnerScrollRef.current = false;
-      }
+      // if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll) {
+      //   scrollPost(ref.current, 1000);
+      //   hadInnerScrollRef.current = false;
+      // }
 
-      prevPageYRef.current = currentPageY;
+      // prevPageYRef.current = currentPageY;
 
       const rect = ref.current.getBoundingClientRect();
       const viewportTrigger = !isMobile ? window.innerHeight / 2 : window.innerHeight / 3;
@@ -190,7 +191,7 @@ function ScrollItem({
 
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-     <div className={`lg:h-[66.667vh] w-full relative`}>
+     <div className={`lg:h-[70vh] w-full relative`}>
       <div
         ref={ref}
         className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
@@ -205,7 +206,9 @@ function ScrollItem({
             key={0}
             src={images[0]}
             style={{ width: "auto", height: "100%", objectFit: "contain" }}
-            
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+              
           />
           {/* Overlay the rest of the images absolutely */}
           <div className={`absolute top-0 left-full h-full w-max flex ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
@@ -215,12 +218,12 @@ function ScrollItem({
               <img
                 key={i + 1}
                 src={src}
-                className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-500 ${isActive || isHover ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   width: "auto",
                   height: "100%",
                   objectFit: "contain",
-                  transitionDelay: `${(isActive ? i : images.length - 2 - i) * 100}ms`,
+                  transitionDelay: `${(isActive || isHover ? i : images.length - 2 - i) * 100}ms`,
                 }}
               />
 
@@ -247,6 +250,7 @@ function ScrollItem({
 export default function Page() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const pageTopRafRef = useRef<number | null>(null);
+  const autoStartTimeoutRef = useRef<number | null>(null);
 
   // useEffect(() => {
   //   return () => {
@@ -283,6 +287,29 @@ export default function Page() {
 
     pageTopRafRef.current = requestAnimationFrame(step);
   };
+
+  useEffect(() => {
+    const maxScrollY = Math.max(
+      0,
+      document.documentElement.scrollHeight - window.innerHeight
+    );
+
+    window.scrollTo({ top: maxScrollY, behavior: "auto" });
+
+    autoStartTimeoutRef.current = window.setTimeout(() => {
+      animatePageScrollToTop(5000);
+      autoStartTimeoutRef.current = null;
+    }, 1000);
+
+    return () => {
+      if (autoStartTimeoutRef.current !== null) {
+        window.clearTimeout(autoStartTimeoutRef.current);
+      }
+      if (pageTopRafRef.current !== null) {
+        cancelAnimationFrame(pageTopRafRef.current);
+      }
+    };
+  }, []);
 
 
   return (
