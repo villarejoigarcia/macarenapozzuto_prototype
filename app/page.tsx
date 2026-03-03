@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { scrollPost } from './scroll-x';
 import Footer from './footer';
+import { Drag } from './drag';
 
 function ScrollItem({
   index,
@@ -56,6 +57,8 @@ function ScrollItem({
 
   return 1 - normalized * 0.25;
 });
+
+Drag(ref as React.RefObject<HTMLElement>, isActive);
 
   // const wasActiveRef = useRef(false);
 
@@ -211,7 +214,7 @@ function ScrollItem({
               
           />
           {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max flex ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          <div className={`absolute top-0 left-full h-full w-max flex px-[3px] gap-[3px] ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
           >
             {images.length > 1 && images.slice(1).map((src, i) => (
 
@@ -260,7 +263,7 @@ export default function Page() {
   //   };
   // }, []);
 
-  const animatePageScrollToTop = (duration = 700) => {
+  const animatePageScrollToTop = (duration = 0) => {
     // if (pageTopRafRef.current !== null) {
     //   cancelAnimationFrame(pageTopRafRef.current);
     // }
@@ -297,7 +300,7 @@ export default function Page() {
     window.scrollTo({ top: maxScrollY, behavior: "auto" });
 
     autoStartTimeoutRef.current = window.setTimeout(() => {
-      animatePageScrollToTop(5000);
+      animatePageScrollToTop(3000);
       autoStartTimeoutRef.current = null;
     }, 1000);
 
