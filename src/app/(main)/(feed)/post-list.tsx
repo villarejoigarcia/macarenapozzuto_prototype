@@ -130,8 +130,8 @@ export default function PostList({
     );
 
     const onScroll = () => {
-      const vh = feed.clientHeight;
-      const scrollTop = feed.scrollTop;
+      const vh = window.innerHeight;
+      const scrollTop = window.scrollY;
       const threshold = vh / 3;
 
       // inicio del scroll → primer post
@@ -151,14 +151,12 @@ export default function PostList({
         return;
       }
 
-      // caso normal
+      // caso normal → primer post cuyo centro supera el threshold
       for (const el of elements) {
         const rect = el.getBoundingClientRect();
-        const feedRect = feed.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
 
-        const relativeTop = rect.top - feedRect.top;
-
-        if (relativeTop + rect.height / 2 >= threshold) {
+        if (centerY >= threshold) {
           const id = el.dataset.postId;
           if (id) setActivePost(id);
           return;
@@ -167,11 +165,11 @@ export default function PostList({
     };
 
     onScroll();
-    feed.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
 
     return () => {
-      feed.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
   }, [posts, setActivePost]);
@@ -180,7 +178,7 @@ export default function PostList({
 
   return (
     // <section className="flex flex-col items-stretch overflow-hidden" id="feed">
-    <section className="flex flex-col items-stretch overflow-scroll h-dvh" id="feed">
+    <section className="flex flex-col items-stretch" id="feed">
       {posts.map((post, index) => (
         <PostItem
           key={post._id}
@@ -215,7 +213,8 @@ export default function PostList({
           // setType(prev => (prev === 'single' ? '' : 'single'));
         }}
       >
-        {showFields ? 'Info -' : 'Info +'}
+        {/* {showFields ? 'Info -' : 'Info +'} */}
+        Info
       </button>
 
       <button

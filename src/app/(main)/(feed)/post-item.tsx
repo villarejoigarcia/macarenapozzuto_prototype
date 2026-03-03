@@ -160,17 +160,17 @@ export default function PostItem({
     const heightClass = isOpen
         ? 'lg:h-[75vh] h-dvh'
         : isAnyOpen
-            ? 'lg:h-[27.5vh] h-[33.333dvh]'
+            ? 'lg:h-[33.333vh] h-[33.333vh]'
             : !isOpen && isActive
-                ? 'lg:h-[33.333vh] h-[40dvh]'
-                : 'lg:h-[27.5vh] h-[33.333dvh]';
+                ? 'lg:h-[40vh] h-[40vh]'
+                : 'lg:h-[33.333vh] h-[33.333vh]';
 
     const opacityClass =
         (isAnyOpen && !isOpen) || (isAnyActive && !isActive && !isOpen)
             ? 'opacity-30'
             : 'opacity-100';
 
-    const hoverActiveClass = isHover && !isOpen ? 'opacity-100 last:mb-(--caption)' : 'opacity-30';
+    const hoverActiveClass = isHover && !isOpen ? 'opacity-100' : 'opacity-30';
 
     const pointerEvents =
         (isHover || isOpen)
@@ -178,11 +178,16 @@ export default function PostItem({
             : 'pointer-events-none';
 
     const paddingClass = isOpen && isMobile ? 'pb-0' : 'pb-[5px]';
+
+    const captionOpacityClass =
+        (isHover && !isAnyOpen) || (isMobile && isActive && !isOpen)
+            ? 'opacity-100 lg:delay-666 delay-333'
+            : 'opacity-0';
     
 
     return (
 
-        <div className={`relative transition-all duration-1000 last:pb-0 ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass} ${(isActive && !isAnyOpen && isMobile) ? 'mb-[calc(var(--caption)-5px)]' : 'mb-0'}`}>
+        <div className={`relative transition-all duration-1000 ${paddingClass} ${heightClass} ${opacityClass} ${hoverActiveClass} ${(isActive && !isAnyOpen && isMobile) ? 'mb-[calc(var(--caption)-5px)]' : 'mb-0'}`}>
 
             <div
                 data-post
@@ -241,62 +246,75 @@ export default function PostItem({
                     >
 
                         {post.images?.map((media: any, i: number) => {
-  const delay = isMobile
-    ? `${(post.images.length - i - 1) * 50}ms`
-    : isHover || isOpen
-      ? `${i * 150}ms`
-      : `${(post.images.length - i - 1) * 50}ms`;
+                            const delay = isMobile
+                                ? `${(post.images.length - i - 1) * 50}ms`
+                                : isHover || isOpen
+                                    ? `${i * 150}ms`
+                                    : `${(post.images.length - i - 1) * 50}ms`;
 
-  // Diferenciar imagen de video
-  if (media._type === 'image') {
-    return (
-      <img
-        key={i}
-        src={urlFor(media).url()}
-        alt={post.title}
-        className="object-cover w-auto transition-opacity duration-500"
-        style={{
-          opacity: isHover || isOpen ? 1 : 0,
-          transitionDelay: delay,
-        }}
-      />
-    );
-  } else if (media._type === 'file') {
-    return (
-      <video
-        key={i}
-        src={media.asset?.url}
-        loop
-        autoPlay
-        muted
-        playsInline
-        className="object-cover w-auto transition-opacity duration-500"
-        style={{
-          opacity: isHover || isOpen ? 1 : 0,
-          transitionDelay: delay,
-        }}
-      />
-    );
-  }
+                            // Diferenciar imagen de video
+                            if (media._type === 'image') {
+                                return (
+                                    <img
+                                        key={i}
+                                        src={urlFor(media).url()}
+                                        alt={post.title}
+                                        className="object-cover w-auto transition-opacity duration-500"
+                                        style={{
+                                            opacity: isHover || isOpen ? 1 : 0,
+                                            transitionDelay: delay,
+                                        }}
+                                    />
+                                );
+                            } else if (media._type === 'file') {
+                                return (
+                                    <video
+                                        key={i}
+                                        src={media.asset?.url}
+                                        loop
+                                        autoPlay
+                                        muted
+                                        playsInline
+                                        className="object-cover w-auto transition-opacity duration-500"
+                                        style={{
+                                            opacity: isHover || isOpen ? 1 : 0,
+                                            transitionDelay: delay,
+                                        }}
+                                    />
+                                );
+                            }
 
-  return null;
-})}
+                            return null;
+                        })}
                     </div>
                 </div>
             </div>
 
             {/* caption */}
-            <div className={`absolute left-0 top-[calc(100% - 5px)] flex items-center w-full justify-between p-(--kv) transition-opacity duration-500 pointer-events-none ${(isHover && !isAnyOpen) || (isMobile && isActive && !isOpen) ? 'opacity-100 lg:delay-666 delay-333' : 'opacity-0'}`}>
-                <h2 className="lg:flex-1 flex-0">{index + 1}.</h2>
-                <h2 className="flex-1 lg:grow-3 grow-2">{post.title}</h2>
+            <div
+                className={`absolute left-0 top-full flex items-center w-full justify-between pointer-events-none transition-all duration-500 p-(--kv) ${captionOpacityClass}`}
+            >
+                <h2 className={`lg:flex-1 flex-0`}>
+                    {index + 1}.
+                </h2>
+
+                <h2 className={`flex-1 lg:grow-4 grow-2`}>
+                    {post.title}
+                </h2>
+
                 {post.categories?.[0] && (
-                    <p className="flex-1">{post.categories[0].title}</p>
+                    <p className={`flex-1`}>
+                        {post.categories[0].title}
+                    </p>
                 )}
-                <h2 className="lg:flex-1 flex-0">{post.year}</h2>
+
+                <h2 className={`flex-0 text-right`}>
+                    {post.year}
+                </h2>
             </div>
 
             {/* fields */}
-            <div className={`fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--caption) lg:left-[calc(100vw*7/12)] left-(--kv) pr-[calc(100vw/12)] transition-opacity duration-500 pointer-events-none z-150 ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`fixed lg:top-(--kv) top-auto lg:bottom-auto bottom-(--caption) lg:left-[calc(100vw*7/12)] left-(--kv) pr-[calc(100vw/12)] transition-opacity duration-500 z-150 pointer-events-none ${isOpen && showFields && type !== 'about' ? 'opacity-100' : 'opacity-0'}`}>
 
                 {(post.categories?.length > 0 || post.year) && (
                     <div className='lg:mb-(--lh) mb-(--kv) flex'>

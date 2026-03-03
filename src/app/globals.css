@@ -38,6 +38,7 @@ body {
   font-size: 13px;
   letter-spacing: -.02em;
   line-height: var(--lh);
+  -webkit-font-smoothing: antialiased;
 }
 
 *::-webkit-scrollbar {

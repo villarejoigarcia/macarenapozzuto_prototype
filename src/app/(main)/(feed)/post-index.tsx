@@ -24,14 +24,14 @@ export default function PostIndex({ posts }: PostIndexProps) {
             : posts.findIndex(post => post._id === openPost);
 
     useEffect(() => {
-        const feed = document.getElementById('feed') as HTMLElement;
+        // const feed = document.getElementById('feed') as HTMLElement;
         if (openPost) {
-            feed.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
         } else {
-            feed.style.overflow = '';
+            document.body.style.overflow = '';
         }
         return () => {
-            feed.style.overflow = '';
+            document.body.style.overflow = '';
         };
     }, [openPost]);
 

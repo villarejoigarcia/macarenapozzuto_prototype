@@ -3,6 +3,7 @@
 import { shuffle } from './functions/shuffle';
 import { useEffect, useRef, useState } from 'react';
 import { scrollArchive } from './functions/scroll-archive';
+import { useBlur } from '../../context/blur-context';
 
 type ImageItem = {
   asset: { url: string };
@@ -35,6 +36,12 @@ export default function ArchiveList({ data }: ArchiveListProps) {
       url: () => media.asset.url,
     };
   }
+
+  const { setType } = useBlur();
+
+  useEffect(() => {
+    setType('');
+  }, [setType]);
 
   useEffect(() => {
     if (hasShuffled.current) return;
@@ -129,19 +136,20 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     return () => {
       document.body.style.overflow = '';
     };
+    
   }, [zoomImg]);
 
   useEffect(() => {
     if (zoomImg) {
-const activeImage = items.find(img => {
-  if (!img) return false;
+      const activeImage = items.find(img => {
+        if (!img) return false;
 
-  if (img._type === 'image') {
-    return img.asset ? urlFor(img).url() === zoomImg : false;
-  } else {
-    return img.asset ? img.asset.url === zoomImg : false;
-  }
-});      const title = activeImage?.title?.trim() || 'Untitled';
+        if (img._type === 'image') {
+          return img.asset ? urlFor(img).url() === zoomImg : false;
+        } else {
+          return img.asset ? img.asset.url === zoomImg : false;
+        }
+      }); const title = activeImage?.title?.trim() || 'Untitled';
       setTextValue(zoomImg);
       setLastTitle(title);
       setShowText(true);
@@ -192,7 +200,7 @@ const activeImage = items.find(img => {
 
   return (
     <>
-      <div className="grid lg:grid-cols-6 grid-cols-2">
+      <div className="lg:grid lg:grid-cols-6 lg:grid-cols-2 columns-2 gap-0" id='archive'>
         {items.map((media, index) => {
           const mediaUrl =
             media._type === 'image'
@@ -237,15 +245,15 @@ const activeImage = items.find(img => {
                 columnDesktop === 0
                   ? 'origin-top-left'
                   : columnDesktop === 5
-                  ? 'origin-top-right'
-                  : 'origin-top';
+                    ? 'origin-top-right'
+                    : 'origin-top';
             else
               originClass =
                 columnDesktop === 0
                   ? 'origin-[0%_50%]'
                   : columnDesktop === 5
-                  ? 'origin-[100%_50%]'
-                  : 'origin-center';
+                    ? 'origin-[100%_50%]'
+                    : 'origin-center';
           }
 
           const dynamicScale = scales[mediaUrl] ?? 1;
@@ -257,7 +265,7 @@ const activeImage = items.find(img => {
               ref={(el) => {
                 if (el) imgRefs.current.set(mediaSrc, el);
               }}
-              className={`${zIndex} cursor-pointer`}
+              className={`${zIndex} cursor-pointer w-full`}
               onClick={() => {
                 if (zoomImg) {
                   setZoomImg(null);
@@ -296,9 +304,9 @@ const activeImage = items.find(img => {
         })}
       </div>
 
-  <p className={`fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
-    {lastTitle}
-  </p>
+      <p className={`w-full text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+        {lastTitle}
+      </p>
     </>
   );
 } 

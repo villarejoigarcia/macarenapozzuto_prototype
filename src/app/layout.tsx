@@ -43,6 +43,7 @@ export default async function RootLayout({
             </PostProvider>
           </AboutProvider>
         </BlurProvider>
+    
       </body>
     </html>
   );

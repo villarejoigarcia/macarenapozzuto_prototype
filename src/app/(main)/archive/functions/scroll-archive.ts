@@ -4,6 +4,9 @@ export function scrollArchive(
 ) {
   const media = el.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
   if (!media) return;
+  
+  // const archive = document.getElementById('archive') as HTMLElement;
+  // if (!archive) return;
 
   const rect = media.getBoundingClientRect();
   const startY = window.scrollY;

@@ -12,7 +12,7 @@ export function getPostTop(
     //     return rect.top + window.scrollY;
     // }
     const isMobile = window.innerWidth < 1024;
-    const close = isMobile ? 33.333 : 27.5;
+    const close = isMobile ? 33.333 : 33.333;
     const open = isMobile ? 100 : 75;
 
     let scrollVh = 0;
