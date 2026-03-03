@@ -92,8 +92,8 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
 
       if (activeByPosition) {
         onActivate(index);
-      // } else if (isActive) {
-        // onActivate(null);
+      } else if (isActive) {
+        onActivate(null);
       }
     });
 
