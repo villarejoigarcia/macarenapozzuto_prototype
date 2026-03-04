@@ -78,7 +78,7 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
 
       const currentPageY = window.scrollY;
       const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
-      const hasVerticalPageScroll = verticalDelta > 0.5;
+      const hasVerticalPageScroll = verticalDelta > 10;
 
       if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll) {
         scrollPost(ref.current, 1000);
@@ -180,7 +180,7 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
   };
 
   const scrollToCenter = () => {
-    if (index === 1) return;
+    // if (index === 1) return;
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
@@ -252,7 +252,7 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
      <div className={`lg:h-[70vh] w-full relative`}>
       <div
         ref={ref}
-        className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-scroll' : 'overflow-hidden'}`}
+        className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-x-auto' : 'overflow-x-hidden'}`}
         onClick={handleClick}
       >
         <motion.div
