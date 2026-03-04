@@ -7,7 +7,7 @@ export function getPostTop(
 
     let centeredTop = 0;
 
-        const itemHeightVh = openIndex !== null ? 75 : 33.333;
+        const itemHeightVh = openIndex !== null ? 75 : 27.5;
         const itemHeightPx = (itemHeightVh / 100) * window.innerHeight;
         const gapValue = wrapper
             ? getComputedStyle(wrapper).rowGap || getComputedStyle(wrapper).gap

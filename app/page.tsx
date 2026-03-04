@@ -7,6 +7,36 @@ import { getPostTop } from './post-top';
 import Footer from './footer';
 import { Drag } from './drag';
 
+const createBezierEasing = (x1: number, y1: number, x2: number, y2: number) => {
+  const cx = 3 * x1;
+  const bx = 3 * (x2 - x1) - cx;
+  const ax = 1 - cx - bx;
+
+  const cy = 3 * y1;
+  const by = 3 * (y2 - y1) - cy;
+  const ay = 1 - cy - by;
+
+  const sampleCurveX = (t: number) => ((ax * t + bx) * t + cx) * t;
+  const sampleCurveY = (t: number) => ((ay * t + by) * t + cy) * t;
+  const sampleCurveDerivativeX = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
+
+  return (x: number) => {
+    const progress = Math.min(Math.max(x, 0), 1);
+    let t = progress;
+
+    for (let i = 0; i < 6; i += 1) {
+      const currentX = sampleCurveX(t) - progress;
+      const currentSlope = sampleCurveDerivativeX(t);
+      if (Math.abs(currentX) < 1e-5 || currentSlope === 0) break;
+      t -= currentX / currentSlope;
+    }
+
+    return sampleCurveY(Math.min(Math.max(t, 0), 1));
+  };
+};
+
+const cssEase = createBezierEasing(0.25, 0.1, 0.25, 1);
+
 function ScrollItem({
   index,
   isActive,
@@ -17,7 +47,7 @@ function ScrollItem({
   index: number;
   isActive: boolean;
   isExpanded: boolean;
-  onExpand: () => void;
+  onExpand: (expanded: boolean) => void;
   onActivate: (index: number | null) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -41,7 +71,7 @@ function ScrollItem({
   ];
 
   const scaleRaw = useTransform(scrollY, (latest) => {
-  if (!ref.current) return 1;
+  if (!ref.current || !isExpanded) return 1;
 
   const rect = ref.current.getBoundingClientRect();
 
@@ -64,7 +94,7 @@ function ScrollItem({
   return 1 - normalized * 0.25;
 });
 
-Drag(ref as React.RefObject<HTMLElement>, isActive);
+  Drag(ref as React.RefObject<HTMLElement>, isActive);
 
   // const wasActiveRef = useRef(false);
 
@@ -128,12 +158,12 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
   // }, []);
 
   const widthSpring = useSpring(scaleRaw, {
-    stiffness: 1200,
+    stiffness: 800,
     damping: 200,
     mass: 1,
   });
 
-  const opacityClass = isActive ? 'opacity-100' : 'opacity-0';
+  const opacityClass = isActive && isExpanded || isHover ? 'opacity-100' : 'opacity-0';
 
   useEffect(() => {
     if (!ref.current) return;
@@ -165,11 +195,7 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      // const easeOutQuart = 1 - Math.pow(1 - progress, 3);
-      const ease = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress;
+      const ease = cssEase(progress);
       const nextY = startY + delta * ease;
 
       window.scrollTo({ top: nextY, behavior: "auto" });
@@ -190,11 +216,11 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
     const rect = ref.current.getBoundingClientRect();
     const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
     const target = Math.max(0, elementCenterY - window.innerHeight / 2);
-    animatePageScrollTo(target, 666);
+    animatePageScrollTo(target, 1000);
   };
 
   // useEffect(() => {
-  //   if (!isActive) return;
+  //   if (!isActive || !isExpanded) return;
   //   recenterTimeoutRef.current = window.setTimeout(() => {
   //     scrollToCenter();
   //     recenterTimeoutRef.current = null;
@@ -208,47 +234,17 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
   //   };
   // }, [isActive]);
 
-  // useEffect(() => {
-  //   if (!isActive) return;
-
-  //   const unsubscribe = scrollY.on("change", () => {
-  //     if (!ref.current) return;
-  //     if (pageScrollRafRef.current !== null) return;
-  //     if (recenterTimeoutRef.current !== null) return;
-
-  //     const rect = ref.current.getBoundingClientRect();
-  //     const elementCenterInViewport = rect.top + rect.height / 2;
-  //     const viewportCenter = window.innerHeight / 2;
-  //     const centerDelta = Math.abs(elementCenterInViewport - viewportCenter);
-
-  //     if (centerDelta > 24) {
-  //       recenterTimeoutRef.current = window.setTimeout(() => {
-  //         scrollToCenter();
-  //         recenterTimeoutRef.current = null;
-  //       }, 1000);
-  //     }
-  //   });
-
-  //   return () => {
-  //     unsubscribe();
-  //     if (recenterTimeoutRef.current !== null) {
-  //       window.clearTimeout(recenterTimeoutRef.current);
-  //       recenterTimeoutRef.current = null;
-  //     }
-  //   };
-  // }, [isActive, scrollY]);
-
-  // useEffect(() => {
-  //   if (!isActive) return;
-  //   const timeoutId = window.setTimeout(() => {
-  //     scrollToCenter();
-  //   }, 750);
-  //   return () => window.clearTimeout(timeoutId);
-  // }, [isActive]);
-
   const handleClick = () => {
-    // if (isActive) return;
-    onExpand();
+    const shouldCollapse = isExpanded && isActive;
+
+    if (shouldCollapse) {
+      onExpand(false);
+      const collapsedTarget = getPostTop(index - 1, null);
+      animatePageScrollTo(collapsedTarget, 1000);
+      return;
+    }
+
+    onExpand(true);
     onActivate(index);
     const target = getPostTop(index - 1, index - 1);
     animatePageScrollTo(target, 1000);
@@ -256,35 +252,36 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
 
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-    <div className={`w-full relative transition-height duration-1000 ease-[cubic-bezier(0.455,0.03,0.515,0.955)] ${isExpanded ? 'lg:h-[75vh]' : 'lg:h-[33.333vh]'}`}>
+    <div className={`w-full relative transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isExpanded ? 'lg:h-[75vh]' : 'lg:h-[27.5vh]'} ${isHover ? 'lg:h-[33.333vh]' : 'lg:h-[27.5vh]'}`}>
       <div
         ref={ref}
-        className={`item w-full h-full relative flex justify-center ${isActive ? 'overflow-x-auto cursor-ew-resize' : 'overflow-hidden cursor-pointer'}`}
+        className={`item w-full h-full relative flex justify-center ${isActive && isExpanded || isHover ? 'overflow-x-auto cursor-ew-resize' : 'overflow-hidden cursor-pointer'}`}
         
       >
         <motion.div
           style={{ scale: widthSpring }}
           className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
             onClick={handleClick}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
             >
           {/* Show the first image directly */}
           <img
             key={0}
             src={images[0]}
             style={{ width: "auto", height: "100%", objectFit: "contain" }}
-            onMouseEnter={() => setIsHover(true)}
-            onMouseLeave={() => setIsHover(false)}
+            
               
           />
           {/* Overlay the rest of the images absolutely */}
-          <div className={`absolute top-0 left-full h-full w-max flex px-[3px] gap-[3px] ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          <div className={`absolute top-0 left-full h-full w-max flex px-[3px] gap-[3px] ${isActive && isExpanded || isHover ? 'pointer-events-auto' : 'pointer-events-none'}`}
           >
             {images.length > 1 && images.slice(1).map((src, i) => (
 
               <img
                 key={i + 1}
                 src={src}
-                className={`transition-opacity duration-500 ${isActive || isHover ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-500 ${(isActive && isExpanded) || isHover ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   width: "auto",
                   height: "100%",
@@ -330,9 +327,7 @@ export default function Page() {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const ease = progress < 0.5
-        ? 2 * progress * progress
-        : -1 + (4 - 2 * progress) * progress;
+      const ease = cssEase(progress);
       const nextY = startY + delta * ease;
 
       window.scrollTo({ top: nextY, behavior: "auto" });
@@ -407,9 +402,7 @@ export default function Page() {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const ease = progress < 0.5
-        ? 2 * progress * progress
-        : -1 + (4 - 2 * progress) * progress;
+      const ease = cssEase(progress);
       const nextY = startY * (1 - ease);
 
       window.scrollTo({ top: nextY, behavior: "auto" });
@@ -453,7 +446,7 @@ export default function Page() {
    <>
   <div
     ref={wrapperRef}
-    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-[padding-bottom] duration-1000 ease-in-out ${isLastItemOutOfView ? 'pb-[100dvh]' : 'pb-[400dvh]'}`}
+    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isLastItemOutOfView ? 'pb-[100dvh]' : 'pb-[400dvh]'}`}
    >
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <ScrollItem
@@ -461,7 +454,7 @@ export default function Page() {
           index={i}
           isActive={activeIndex === i}
           isExpanded={isExpanded}
-          onExpand={() => setIsExpanded(true)}
+          onExpand={setIsExpanded}
           onActivate={setActiveIndex}
         />
       ))}
