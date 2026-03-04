@@ -94,7 +94,7 @@ function ScrollItem({
   return 1 - normalized * 0.25;
 });
 
-  Drag(ref as React.RefObject<HTMLElement>, isActive);
+Drag(ref as React.RefObject<HTMLElement>, isActive);
 
   // const wasActiveRef = useRef(false);
 
@@ -250,6 +250,12 @@ function ScrollItem({
     animatePageScrollTo(target, 1000);
   };
 
+  const resetCurrentScroll = () => {
+    if (!ref.current) return;
+    scrollPost(ref.current, 1000);
+    hadInnerScrollRef.current = false;
+  };
+
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
     <div className={`w-full relative transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isExpanded ? 'lg:h-[75vh]' : 'lg:h-[27.5vh]'} ${isHover ? 'lg:h-[33.333vh]' : 'lg:h-[27.5vh]'}`}>
@@ -262,8 +268,13 @@ function ScrollItem({
           style={{ scale: widthSpring }}
           className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
             onClick={handleClick}
-            onMouseEnter={() => setIsHover(true)}
-            onMouseLeave={() => setIsHover(false)}
+            onMouseEnter={() => {
+              setIsHover(true);
+            }}
+            onMouseLeave={() => {
+              setIsHover(false);
+              resetCurrentScroll();
+            }}
             >
           {/* Show the first image directly */}
           <img
@@ -281,7 +292,7 @@ function ScrollItem({
               <img
                 key={i + 1}
                 src={src}
-                className={`transition-opacity duration-500 ${(isActive && isExpanded) || isHover ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-500 ${isActive && isExpanded || isHover ? 'opacity-100' : 'opacity-0'}`}
                 style={{
                   width: "auto",
                   height: "100%",
