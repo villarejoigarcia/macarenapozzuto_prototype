@@ -428,28 +428,28 @@ export default function Page() {
     pageTopRafRef.current = requestAnimationFrame(step);
   };
 
-  // useEffect(() => {
-  //   const maxScrollY = Math.max(
-  //     0,
-  //     document.documentElement.scrollHeight - window.innerHeight
-  //   );
+  useEffect(() => {
+    const maxScrollY = Math.max(
+      0,
+      document.documentElement.scrollHeight - window.innerHeight
+    );
 
-  //   window.scrollTo({ top: maxScrollY, behavior: "auto" });
+    window.scrollTo({ top: maxScrollY, behavior: "auto" });
 
-  //   autoStartTimeoutRef.current = window.setTimeout(() => {
-  //     animatePageScrollToTop(3000);
-  //     autoStartTimeoutRef.current = null;
-  //   }, 1000);
+    autoStartTimeoutRef.current = window.setTimeout(() => {
+      animatePageScrollToTop(3000);
+      autoStartTimeoutRef.current = null;
+    }, 1000);
 
-  //   return () => {
-  //     if (autoStartTimeoutRef.current !== null) {
-  //       window.clearTimeout(autoStartTimeoutRef.current);
-  //     }
-  //     if (pageTopRafRef.current !== null) {
-  //       cancelAnimationFrame(pageTopRafRef.current);
-  //     }
-  //   };
-  // }, []);
+    return () => {
+      if (autoStartTimeoutRef.current !== null) {
+        window.clearTimeout(autoStartTimeoutRef.current);
+      }
+      if (pageTopRafRef.current !== null) {
+        cancelAnimationFrame(pageTopRafRef.current);
+      }
+    };
+  }, []);
 
 
   return (
