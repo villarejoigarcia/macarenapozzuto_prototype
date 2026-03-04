@@ -75,14 +75,14 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
     const unsubscribe = scrollY.on("change", () => {
       if (!ref.current) return;
 
-      // const currentPageY = window.scrollY;
-      // const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
-      // const hasVerticalPageScroll = verticalDelta > 0.5;
+      const currentPageY = window.scrollY;
+      const verticalDelta = Math.abs(currentPageY - prevPageYRef.current);
+      const hasVerticalPageScroll = verticalDelta > 0.5;
 
-      // if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll) {
-      //   scrollPost(ref.current, 1000);
-      //   hadInnerScrollRef.current = false;
-      // }
+      if (isActive && hadInnerScrollRef.current && hasVerticalPageScroll) {
+        scrollPost(ref.current, 1000);
+        hadInnerScrollRef.current = false;
+      }
 
       // prevPageYRef.current = currentPageY;
 
@@ -132,9 +132,9 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
   useEffect(() => {
     if (!ref.current) return;
 
-    // if (wasActiveRef.current && !isActive) {
+    if (!isActive) {
       scrollPost(ref.current, 1000);
-    // }
+    }
 
     // wasActiveRef.current = isActive;
   }, [isActive]);
