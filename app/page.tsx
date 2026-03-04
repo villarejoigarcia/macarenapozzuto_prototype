@@ -3,16 +3,21 @@
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { scrollPost } from './scroll-x';
+import { getPostTop } from './post-top';
 import Footer from './footer';
 import { Drag } from './drag';
 
 function ScrollItem({
   index,
   isActive,
+  isExpanded,
+  onExpand,
   onActivate,
 }: {
   index: number;
   isActive: boolean;
+  isExpanded: boolean;
+  onExpand: () => void;
   onActivate: (index: number | null) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -188,50 +193,50 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
     animatePageScrollTo(target, 666);
   };
 
-  useEffect(() => {
-    if (!isActive) return;
-    recenterTimeoutRef.current = window.setTimeout(() => {
-      scrollToCenter();
-      recenterTimeoutRef.current = null;
-    }, 1000);
+  // useEffect(() => {
+  //   if (!isActive) return;
+  //   recenterTimeoutRef.current = window.setTimeout(() => {
+  //     scrollToCenter();
+  //     recenterTimeoutRef.current = null;
+  //   }, 1000);
 
-    return () => {
-      if (recenterTimeoutRef.current !== null) {
-        window.clearTimeout(recenterTimeoutRef.current);
-        recenterTimeoutRef.current = null;
-      }
-    };
-  }, [isActive]);
+  //   return () => {
+  //     if (recenterTimeoutRef.current !== null) {
+  //       window.clearTimeout(recenterTimeoutRef.current);
+  //       recenterTimeoutRef.current = null;
+  //     }
+  //   };
+  // }, [isActive]);
 
-  useEffect(() => {
-    if (!isActive) return;
+  // useEffect(() => {
+  //   if (!isActive) return;
 
-    const unsubscribe = scrollY.on("change", () => {
-      if (!ref.current) return;
-      if (pageScrollRafRef.current !== null) return;
-      if (recenterTimeoutRef.current !== null) return;
+  //   const unsubscribe = scrollY.on("change", () => {
+  //     if (!ref.current) return;
+  //     if (pageScrollRafRef.current !== null) return;
+  //     if (recenterTimeoutRef.current !== null) return;
 
-      const rect = ref.current.getBoundingClientRect();
-      const elementCenterInViewport = rect.top + rect.height / 2;
-      const viewportCenter = window.innerHeight / 2;
-      const centerDelta = Math.abs(elementCenterInViewport - viewportCenter);
+  //     const rect = ref.current.getBoundingClientRect();
+  //     const elementCenterInViewport = rect.top + rect.height / 2;
+  //     const viewportCenter = window.innerHeight / 2;
+  //     const centerDelta = Math.abs(elementCenterInViewport - viewportCenter);
 
-      if (centerDelta > 24) {
-        recenterTimeoutRef.current = window.setTimeout(() => {
-          scrollToCenter();
-          recenterTimeoutRef.current = null;
-        }, 1000);
-      }
-    });
+  //     if (centerDelta > 24) {
+  //       recenterTimeoutRef.current = window.setTimeout(() => {
+  //         scrollToCenter();
+  //         recenterTimeoutRef.current = null;
+  //       }, 1000);
+  //     }
+  //   });
 
-    return () => {
-      unsubscribe();
-      if (recenterTimeoutRef.current !== null) {
-        window.clearTimeout(recenterTimeoutRef.current);
-        recenterTimeoutRef.current = null;
-      }
-    };
-  }, [isActive, scrollY]);
+  //   return () => {
+  //     unsubscribe();
+  //     if (recenterTimeoutRef.current !== null) {
+  //       window.clearTimeout(recenterTimeoutRef.current);
+  //       recenterTimeoutRef.current = null;
+  //     }
+  //   };
+  // }, [isActive, scrollY]);
 
   // useEffect(() => {
   //   if (!isActive) return;
@@ -242,22 +247,25 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
   // }, [isActive]);
 
   const handleClick = () => {
-    if (isActive) return;
-    scrollToCenter();
+    // if (isActive) return;
+    onExpand();
     onActivate(index);
+    const target = getPostTop(index - 1, index - 1);
+    animatePageScrollTo(target, 1000);
   };
 
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-     <div className={`lg:h-[70vh] w-full relative`}>
+    <div className={`w-full relative transition-height duration-1000 ease-[cubic-bezier(0.455,0.03,0.515,0.955)] ${isExpanded ? 'lg:h-[75vh]' : 'lg:h-[33.333vh]'}`}>
       <div
         ref={ref}
-        className={`item w-full h-full relative cursor-pointer flex justify-center ${isActive ? 'overflow-x-auto' : 'overflow-x-hidden'}`}
-        onClick={handleClick}
+        className={`item w-full h-full relative flex justify-center ${isActive ? 'overflow-x-auto cursor-ew-resize' : 'overflow-hidden cursor-pointer'}`}
+        
       >
         <motion.div
           style={{ scale: widthSpring }}
           className="origin-center lg:w-fit w-2/3 h-full will-change-transform flex justify-center"
+            onClick={handleClick}
             >
           {/* Show the first image directly */}
           <img
@@ -307,8 +315,78 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
 
 export default function Page() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const pageScrollRafRef = useRef<number | null>(null);
   const pageTopRafRef = useRef<number | null>(null);
   const autoStartTimeoutRef = useRef<number | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isLastItemOutOfView, setIsLastItemOutOfView] = useState(false);
+
+  const animatePageScrollTo = (targetY: number, duration = 0) => {
+    const startY = window.scrollY;
+    const delta = targetY - startY;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress;
+      const nextY = startY + delta * ease;
+
+      window.scrollTo({ top: nextY, behavior: "auto" });
+
+      if (progress < 1) {
+        pageScrollRafRef.current = requestAnimationFrame(step);
+      } else {
+        pageScrollRafRef.current = null;
+      }
+    };
+
+    pageScrollRafRef.current = requestAnimationFrame(step);
+  };
+
+  useEffect(() => {
+    const updateLastItemVisibility = () => {
+      const items = wrapperRef.current?.querySelectorAll('.item');
+      if (!items || items.length === 0) return;
+
+      const lastItem = items[items.length - 1] as HTMLElement;
+      const rect = lastItem.getBoundingClientRect();
+      const outOfView = rect.bottom <= 50;
+
+      setIsLastItemOutOfView((prev) => (prev === outOfView ? prev : outOfView));
+    };
+
+    updateLastItemVisibility();
+    window.addEventListener('scroll', updateLastItemVisibility, { passive: true });
+    window.addEventListener('resize', updateLastItemVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', updateLastItemVisibility);
+      window.removeEventListener('resize', updateLastItemVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+
+      const clickedInsideMotionDiv = !!target.closest('.origin-center');
+      if (!clickedInsideMotionDiv) {
+        if (isExpanded && activeIndex !== null) {
+          const targetTop = getPostTop(activeIndex - 1, null);
+          animatePageScrollTo(targetTop, 1000);
+        }
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isExpanded, activeIndex]);
 
   // useEffect(() => {
   //   return () => {
@@ -346,39 +424,44 @@ export default function Page() {
     pageTopRafRef.current = requestAnimationFrame(step);
   };
 
-  useEffect(() => {
-    const maxScrollY = Math.max(
-      0,
-      document.documentElement.scrollHeight - window.innerHeight
-    );
+  // useEffect(() => {
+  //   const maxScrollY = Math.max(
+  //     0,
+  //     document.documentElement.scrollHeight - window.innerHeight
+  //   );
 
-    window.scrollTo({ top: maxScrollY, behavior: "auto" });
+  //   window.scrollTo({ top: maxScrollY, behavior: "auto" });
 
-    autoStartTimeoutRef.current = window.setTimeout(() => {
-      animatePageScrollToTop(3000);
-      autoStartTimeoutRef.current = null;
-    }, 1000);
+  //   autoStartTimeoutRef.current = window.setTimeout(() => {
+  //     animatePageScrollToTop(3000);
+  //     autoStartTimeoutRef.current = null;
+  //   }, 1000);
 
-    return () => {
-      if (autoStartTimeoutRef.current !== null) {
-        window.clearTimeout(autoStartTimeoutRef.current);
-      }
-      if (pageTopRafRef.current !== null) {
-        cancelAnimationFrame(pageTopRafRef.current);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (autoStartTimeoutRef.current !== null) {
+  //       window.clearTimeout(autoStartTimeoutRef.current);
+  //     }
+  //     if (pageTopRafRef.current !== null) {
+  //       cancelAnimationFrame(pageTopRafRef.current);
+  //     }
+  //   };
+  // }, []);
 
 
   return (
     // <div ref={containerRef} className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh]">
    <>
-   <div className="wrapper flex flex-col gap-[5px] items-center pb-[100dvh] overflow-hidden">
+  <div
+    ref={wrapperRef}
+    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-[padding-bottom] duration-1000 ease-in-out ${isLastItemOutOfView ? 'pb-[100dvh]' : 'pb-[400dvh]'}`}
+   >
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <ScrollItem
           key={i}
           index={i}
           isActive={activeIndex === i}
+          isExpanded={isExpanded}
+          onExpand={() => setIsExpanded(true)}
           onActivate={setActiveIndex}
         />
       ))}
