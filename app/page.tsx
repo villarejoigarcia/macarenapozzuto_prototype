@@ -20,6 +20,7 @@ function ScrollItem({
   const [textHeight, setTextHeight] = useState(0);
   const pageScrollRafRef = useRef<number | null>(null);
   const hadInnerScrollRef = useRef(false);
+  const recenterTimeoutRef = useRef<number | null>(null);
   const prevPageYRef = useRef(0);
   const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
@@ -178,18 +179,72 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
     pageScrollRafRef.current = requestAnimationFrame(step);
   };
 
-  const handleClick = () => {
-    onActivate(index);
+  const scrollToCenter = () => {
+    if (index === 1) return;
     if (!ref.current) return;
-    const scrollToCenter = () => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
-      const target = Math.max(0, elementCenterY - window.innerHeight / 2);
-      animatePageScrollTo(target, 666);
-    };
+    const rect = ref.current.getBoundingClientRect();
+    const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
+    const target = Math.max(0, elementCenterY - window.innerHeight / 2);
+    animatePageScrollTo(target, 666);
+  };
 
+  useEffect(() => {
+    if (!isActive) return;
+    recenterTimeoutRef.current = window.setTimeout(() => {
+      scrollToCenter();
+      recenterTimeoutRef.current = null;
+    }, 1000);
+
+    return () => {
+      if (recenterTimeoutRef.current !== null) {
+        window.clearTimeout(recenterTimeoutRef.current);
+        recenterTimeoutRef.current = null;
+      }
+    };
+  }, [isActive]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const unsubscribe = scrollY.on("change", () => {
+      if (!ref.current) return;
+      if (pageScrollRafRef.current !== null) return;
+      if (recenterTimeoutRef.current !== null) return;
+
+      const rect = ref.current.getBoundingClientRect();
+      const elementCenterInViewport = rect.top + rect.height / 2;
+      const viewportCenter = window.innerHeight / 2;
+      const centerDelta = Math.abs(elementCenterInViewport - viewportCenter);
+
+      if (centerDelta > 24) {
+        recenterTimeoutRef.current = window.setTimeout(() => {
+          scrollToCenter();
+          recenterTimeoutRef.current = null;
+        }, 1000);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      if (recenterTimeoutRef.current !== null) {
+        window.clearTimeout(recenterTimeoutRef.current);
+        recenterTimeoutRef.current = null;
+      }
+    };
+  }, [isActive, scrollY]);
+
+  // useEffect(() => {
+  //   if (!isActive) return;
+  //   const timeoutId = window.setTimeout(() => {
+  //     scrollToCenter();
+  //   }, 750);
+  //   return () => window.clearTimeout(timeoutId);
+  // }, [isActive]);
+
+  const handleClick = () => {
+    if (isActive) return;
     scrollToCenter();
+    onActivate(index);
   };
 
   return (
