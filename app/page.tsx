@@ -339,42 +339,51 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
           {!isMobile && (
             < div className={`absolute top-0 left-full h-full w-max flex px-[3px] gap-[3px] ${(isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile) ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
-          {images.length > 1 && images.slice(1).map((src, i) => (
+              {images.length > 1 && images.slice(1).map((src, i) => (
 
-            <img
-              key={i + 1}
-              src={src}
-              className={`transition-opacity duration-500 ${(isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile) ? 'opacity-100' : 'opacity-0'}`}
-              style={{
-                width: "auto",
-                height: "100%",
-                objectFit: "contain",
-                transitionDelay: `${((isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile) ? i : images.length - 2 - i) * 100}ms`,
-              }}
-            />
+                <img
+                  key={i + 1}
+                  src={src}
+                  className={`transition-opacity duration-500 ${(isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile) ? 'opacity-100' : 'opacity-0'}`}
+                  style={{
+                    width: "auto",
+                    height: "100%",
+                    objectFit: "contain",
+                    transitionDelay: `${((isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile) ? i : images.length - 2 - i) * 100}ms`,
+                  }}
+                />
 
-          ))}
-      </div>
+              ))}
+            </div>
           )}
         </motion.div>
       </div>
  
       <div
         ref={textRef}
-        className={`flex w-full px-[10px] transition-all duration-1000 ${isActive && isMobile ? `my-[10px_5px]` : !isMobile ? 'my-[10px_5px]' : 'my-0'}`}
-        style={isMobile ? { height: isActive ? `${textHeight}px` : "0px" } : undefined}
+        className={`flex w-full px-[10px] transition-all duration-1000 ${isActive && isMobile ? `py-[10px_5px] h-[30px]` : !isMobile ? 'py-[10px_5px]' : 'h-0 py-0'}`}
+  
       >
-        <p className={`flex-1 grow-1 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
-        <p className={`flex-1 grow-1  opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
+        <p className={`flex-1 lg:grow-1 grow-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
+        <p className={`flex-1 grow-1 opacity-0 transition-opacity duration-500 ${opacityClass}`}>Fotosprint</p>
 
-        <p
-          className={`relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 delay-500 ${isExpanded && isActive ? 'opacity-100' : 'opacity-0'}`}
-          onClick={() => setIsInfo(prev => !prev)}
-        >+ Info</p>
+        {!isMobile && (
+
+          <>
+
+            <p
+              className={`relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${isExpanded && isActive ? 'opacity-100 delay-500' : 'opacity-0'}`}
+              onClick={() => setIsInfo(prev => !prev)}
+            >+ Info</p>
+
+            <div className={`flex-1 grow-[2.5] opacity-0 transition-opacity duration-500 -translate-y-full pointer-events-none ${isInfo && isActive ? 'opacity-100' : 'opacity-0'}`}>
+              <p className="relative mr-[20%] top-[1em]">Lupai is an AI assistant designed to answer questions about migration and local work dynamics in Germany. The project was born out of the concrete needs of migrants facing the difficulties of German bureaucracy. As there is no single, reliable source of information in Spanish or English, Lupai’s team decided to create an app that could meet these needs and help the whole community.</p>
+            </div>
+
+          </>
+
+        )}
         
-        <div className={`flex-1 grow-[2.5] opacity-0 transition-opacity duration-500 -translate-y-full pointer-events-none ${isInfo && isActive ? 'opacity-100': 'opacity-0'}`}>
-          <p className="relative mr-[20%] top-[1em]">Lupai is an AI assistant designed to answer questions about migration and local work dynamics in Germany. The project was born out of the concrete needs of migrants facing the difficulties of German bureaucracy. As there is no single, reliable source of information in Spanish or English, Lupai’s team decided to create an app that could meet these needs and help the whole community.</p>
-        </div>
 
         <p className={`flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${opacityClass}`}>Brand identity</p>
         <p className={`flex-1 grow-[0.5] text-right opacity-0 transition-opacity duration-500 ${opacityClass}`}>2025</p>
@@ -529,7 +538,7 @@ export default function Page() {
    <>
   <div
     ref={wrapperRef}
-    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] lg:pb-[25px]`}
+    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:pb-[6.5%]' : 'lg:pb-[25px]'}`}
    >
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i, arrIndex, arr) => (
         <ScrollItem

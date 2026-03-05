@@ -3,7 +3,7 @@
 export default function Footer() {
 
     return (
-        <div className={'h-screen flex flex-col justify-end p-[10px] w-full'}>
+        <div className={'lg:h-screen h-fit flex flex-col justify-end p-[10px] w-full'}>
             <div className="sticky bottom-[10px]">
             <svg viewBox="0 0 1888 553" fill="white" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 552.72V0H83.79L266.07 458.64L445.41 0H529.2V552.72H463.05V127.89L296.94 552.72H235.2L66.15 127.89V552.72H0Z" />
