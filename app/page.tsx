@@ -308,7 +308,7 @@ Drag(ref as React.RefObject<HTMLElement>, isActive);
 
   return (
     // <div className={`flex flex-col items-center lg:px-[33.333vw] relative`}>
-    <div className={`w-full relative transition-height ${classDuration} ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:h-[75vh]' : 'lg:h-[27.5vh]'} ${isHover ? 'lg:h-[33.333vh]' : 'lg:h-[27.5vh]'}`}>
+    <div className={`w-full relative transition-height ${classDuration} ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:h-[70vh]' : 'lg:h-[27.5vh]'} ${isHover ? 'lg:h-[33.333vh]' : 'lg:h-[27.5vh]'}`}>
       <div
         ref={ref}
         className={`item w-full h-full relative flex justify-center ${(isActive && isExpanded) || (isActive && isMobile) || (isHover && !isMobile && !isExpanded) ? 'overflow-x-auto cursor-ew-resize' : 'overflow-hidden cursor-pointer'}`}
@@ -538,7 +538,7 @@ export default function Page() {
    <>
   <div
     ref={wrapperRef}
-    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:pb-[6.5%]' : 'lg:pb-[25px]'}`}
+    className={`wrapper flex flex-col gap-[5px] items-center overflow-hidden transition-padding duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:pb-[15vh]' : 'lg:pb-[25px]'}`}
    >
       {[1, 2, 3, 4, 5, 6, 7, 8].map((i, arrIndex, arr) => (
         <ScrollItem
@@ -555,7 +555,7 @@ export default function Page() {
     </div>
     
       <div
-        className={`transition-[padding-top] duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] ${isLastItemOutOfView ? 'lg:pb-[0]' : 'lg:pb-[400dvh]'}`}
+        className={`${isLastItemOutOfView ? 'lg:pb-[0]' : 'lg:pb-[500dvh]'}`}
         onClick={() => animatePageScrollToTop(3000)}>
         <Footer />
       </div>
