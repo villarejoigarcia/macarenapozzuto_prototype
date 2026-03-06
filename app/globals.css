@@ -38,3 +38,42 @@ body {
 *::-webkit-scrollbar {
   display: none;
 }
+
+#blur {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100vw;
+	z-index: 10;
+  
+}
+
+#blur::before {
+	content: "";
+	position: absolute;
+  transform: translateY(-100%);
+	z-index: -1;
+	inset: 0;
+	-webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+	mask-image: linear-gradient(to top, rgb(11, 11, 11) 33.333%, transparent);
+	height: 5vh;
+	background-color: rgba(11, 11, 11, .25);
+	transition: .666s;
+  /* pointer-events: none; */
+}
+
+#blur.about::before,
+#blur.single::before {
+	-webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+	background-color: rgba(11, 11, 11, .666);
+}
+
+#blur.about::before {
+	height: 300vh;
+}
+
+#blur.single::before {
+	height: 100vh;
+}
