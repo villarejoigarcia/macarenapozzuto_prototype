@@ -42,6 +42,7 @@ function ScrollItem({
   const [isHover, setIsHover] = useState(false);
   const [isInfo, setIsInfo] = useState(false);
   const { setType, type } = useBlur();
+  const [isVisible, setIsVisible] = useState(false);
 
   const images = [
     `/images/item${index}/image1.webp`,
@@ -213,7 +214,7 @@ function ScrollItem({
       window.setTimeout(() => {
         document.body.style.pointerEvents = "auto";
       }, duration);
-    }, 750);
+    }, 666);
 
     return () => {
       if (recenterTimeoutRef.current !== null) {
@@ -277,6 +278,8 @@ function ScrollItem({
           onClick={() => {
             handleClick();
             resetCurrentScroll();
+            if (!isMobile) return;
+            setIsVisible(true);
           }}
           onMouseEnter={() => {
             setIsHover(true);
@@ -317,6 +320,25 @@ function ScrollItem({
             </div>
           )}
         </motion.div>
+        {isMobile && (
+          < div
+          id="media-mobile"
+            className={`z-100 fixed top-0 left-0 h-dvh w-screen overflow-scroll transition-opacity duration-750 flex flex-col gap-[3px] ${isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            onClick={() => {
+              setIsVisible(false);
+            }}
+          >
+              {images.map((src, i) => (
+
+                <img
+                  key={i + 1}
+                  src={src}
+                  className={`w-auto h-full object-contain`}
+                />
+
+              ))}
+            </div>
+          )}
       </div>
 
       <div
@@ -332,7 +354,7 @@ function ScrollItem({
           <>
 
             <p
-              className={`relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${isExpanded && isActive ? 'opacity-100 delay-500' : 'opacity-0'}`}
+              className={`cursor-pointer relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${isExpanded && isActive ? 'opacity-100 delay-500' : 'opacity-0'}`}
               onClick={() => {
                 setType((prev) => (prev === 'single' ? '' : 'single'));
               }}
