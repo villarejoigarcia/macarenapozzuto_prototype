@@ -343,7 +343,7 @@ function ScrollItem({
 
       <div
         ref={textRef}
-        className={`z-50 relative flex w-full px-[10px] transition-all duration-1000 ${isActive && isMobile ? `py-[10px_5px] h-[30px]` : !isMobile ? 'py-[10px_5px]' : 'h-0 py-0'}`}
+        className={`z-50 relative pointer-events-none flex w-full px-[10px] transition-all duration-1000 ${isActive && isMobile ? `py-[10px_5px] h-[30px]` : !isMobile ? 'py-[10px_5px]' : 'h-0 py-0'}`}
 
       >
         <p className={`flex-1 lg:grow-1 grow-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index}.</p>
@@ -354,7 +354,7 @@ function ScrollItem({
           <>
 
             <p
-              className={`cursor-pointer relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${isExpanded && isActive ? 'opacity-100 delay-500' : 'opacity-0'}`}
+              className={`pointer-events-auto cursor-pointer relative z-50 flex-1 grow-[0.5] opacity-0 transition-opacity duration-500 ${isExpanded && isActive ? 'opacity-100 delay-500' : 'opacity-0'}`}
               onClick={() => {
                 setType((prev) => (prev === 'single' ? '' : 'single'));
               }}
