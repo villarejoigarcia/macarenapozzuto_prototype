@@ -15,7 +15,7 @@ export default function Header() {
 
 
   return (
-    <header className="fixed top-0 left-0 lg:w-1/3 w-screen z-100 flex p-(--kv)">
+    <header className="fixed top-0 left-0 lg:w-1/3 w-screen z-100 flex pt-(--kv) pl-(--kv) lg:pr-0 pr-(--kv)">
       <h1 className="flex-1">Macarena Pozzuto</h1>
 
       <nav className="lg:flex-1 flex-0 flex gap-[.2em]">

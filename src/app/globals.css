@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0b0b;
+  /* --background: #0d0d0d; */
+  --background: #0c0c0c;
   --foreground: #171717;
   --link: #b8b8b8;
 }
@@ -26,8 +27,8 @@
 }
 
 @font-face {
-	font-family: 'Authentic Sans';
-	src: url('/fonts/authentic-sans-130.otf') format('opentype');
+  font-family: 'Authentic Sans';
+  src: url('/fonts/authentic-sans-130.otf') format('opentype');
   font-style: normal;
 }
 
@@ -52,41 +53,89 @@ body {
 /* blur */
 
 #blur {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* inset: 0; */
+  /* height: 100vh; */
+  width: 100vw;
+  pointer-events: none;
+  z-index: 50;
 }
 
 #blur::before {
-	content: "";
-	position: absolute;
-	z-index: -1;
-	inset: 0;
-	-webkit-backdrop-filter: blur(0);
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  -webkit-backdrop-filter: blur(0);
   backdrop-filter: blur(0);
-	mask-image: linear-gradient(to bottom, rgb(11, 11, 11) 33.333%, transparent);
-	height: 5vh;
-	background-color: rgba(11, 11, 11, .25);
-	transition: .666s;
+  mask-image: linear-gradient(to bottom, rgb(12, 12, 12) 33.333%, transparent);
+  height: 5vh;
+  transition: .666s;
+  background-color: rgba(12, 12, 12, .167);
+  width: 100%;
   /* pointer-events: none; */
 }
 
+/* .caption::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+   -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  background-color: rgba(12, 12, 12, .666);
+  mask-image: linear-gradient(to bottom, rgb(12, 12, 12) 33.333%, transparent);
+  height: 100%;
+  
+  transition: .666s;
+  width: 100%;
+  opacity: 0;
+} */
+
+#blur.about::before,
+.media-mobile {
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  background-color: rgba(12, 12, 12, .666);
+}
+
+@media (min-width: 1024px) {
+  #blur.single::before {
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    background-color: rgba(12, 12, 12, .666);
+  }
+
+  #blur.single::before {
+    height: 150vh;
+  }
+}
+
+/* .caption.active::after { 
+  opacity: 1;
+}
+
+.caption.active::after {
+  pointer-events: auto;
+} */
+
+
 #blur.about::before,
 #blur.single::before {
-	-webkit-backdrop-filter: blur(15px);
-  backdrop-filter: blur(15px);
-	background-color: rgba(11, 11, 11, .666);
+  pointer-events: auto;
 }
 
 #blur.about::before {
-	height: 300vh;
+    height: 300vh;
 }
 
-#blur.single::before {
-	height: 100vh;
-}
+/* .caption.active::after {
+  height: 300vh;
+} */
 
 /* header */
 
@@ -106,7 +155,7 @@ header nav button:hover {
 
 @media (max-width: 1024px) {
 
-  #blur {
+  /* #blur {
     top: auto;
     bottom: 0;
   }
@@ -119,18 +168,54 @@ header nav button:hover {
     right: 0;
   }
 
-    #blur.single::before {
-      height: 66.666vh;
-    }
+  #blur.single::before {
+    height: 66.666vh;
+  }
 
-        header::before {
-          content: "";
-          position: absolute;
-          z-index: -1;
-          inset: 0;
-          mask-image: linear-gradient(to bottom, rgb(11, 11, 11) 33.333%, transparent);
-          height: 5vh;
-          background-color: rgba(11, 11, 11, .25);
-        }
+  header::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    mask-image: linear-gradient(to bottom, rgb(12, 12, 12) 33.333%, transparent);
+    height: 5vh;
+    background-color: rgba(11, 11, 11, .25);
+  } */
+
+  #single-nav::before {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background-color: rgba(12, 12, 12, .167);
+  mask-image: linear-gradient(to top, rgb(12, 12, 12) 33.333%, transparent);
+  height: 5vh;
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+  
+  transition: .666s;
+  width: 100vw;
+  /* opacity: 0; */
+  pointer-events: none;
+  
+}
+
+#single-nav.active::before {
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  background-color: rgba(12, 12, 12, .666);
+  height: 200vh;
+  pointer-events: auto;
+}
+
+/* #blur.single::before {
+  height: 300vh;
+} */
+
+
+    /* .caption.active::after {
+      opacity: 1;
+    } */
 
 }

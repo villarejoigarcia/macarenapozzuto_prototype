@@ -1,6 +1,7 @@
 import { client } from "@/sanity/client";
 import ArchivePage from "./archive";
 import { archive_query } from "../../queries/archive-query";
+import Blur from '../../components/blur';
 
 const options = { next: { revalidate: 30 } };
 
@@ -12,6 +13,7 @@ export default async function Archive({
 
   return (
     <main>
+      <Blur/>
           <ArchivePage data={archive} />
     </main>
   );

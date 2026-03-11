@@ -1,7 +1,7 @@
 import { client } from "@/sanity/client";
 import PostIndex from "./post-index";
 import { POSTS_QUERY } from "../../queries/query";
-import Footer from '../../components/footer';
+import Blur from '../../components/blur';
 
 const options = { next: { revalidate: 30 } };
 
@@ -14,9 +14,10 @@ export default async function IndexPage({
   return (
     <>
     <main>
+      <Blur/>
         <PostIndex posts={posts} />
     </main>
-    <Footer/>
+  
     </>
   );
 }

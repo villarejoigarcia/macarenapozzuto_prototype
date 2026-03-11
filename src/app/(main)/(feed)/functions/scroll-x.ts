@@ -3,7 +3,8 @@ export function scrollPost(
     duration = 1000
 ) {
     const isMobile = window.innerWidth < 1024; // definir breakpoint móvil
-    const start = isMobile ? element.scrollTop : element.scrollLeft;
+    if (isMobile) return;
+    const start = element.scrollLeft;
     const startTime = performance.now();
 
     // const finalDuration = isMobile ? 1000 : duration;
@@ -60,11 +61,7 @@ export function scrollPost(
         
         const value = start * (1 - ease);
 
-        if (isMobile) {
-            element.scrollTop = value; // scroll vertical en móvil
-        } else {
             element.scrollLeft = value; // scroll horizontal en escritorio
-        }
 
         if (progress < 1) {
             requestAnimationFrame(animate);

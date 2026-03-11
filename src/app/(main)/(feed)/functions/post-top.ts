@@ -2,83 +2,24 @@ export function getPostTop(
     index: number,
     openIndex: number | null
 ) {
-    // if (window.innerWidth < 1024) {
-    //     const posts = document.querySelectorAll('[data-post]');
-    //     const el = posts[index] as HTMLElement | undefined;
+    const safeIndex = Math.max(0, index);
+    const wrapper = document.querySelector('.wrapper') as HTMLElement | null;
 
-    //     if (!el) return 0;
+    let centeredTop = 0;
 
-    //     const rect = el.getBoundingClientRect();
-    //     return rect.top + window.scrollY;
-    // }
-    const isMobile = window.innerWidth < 1024;
-    const close = isMobile ? 33.333 : 33.333;
-    const open = isMobile ? 100 : 75;
+        const itemHeightVh = openIndex !== null ? 70 : 27.5;
+        const itemHeightPx = (itemHeightVh / 100) * window.innerHeight;
+        const gapValue = wrapper
+            ? getComputedStyle(wrapper).rowGap || getComputedStyle(wrapper).gap
+            : '0';
+        const gapPx = Number.parseFloat(gapValue || '0') || 0;
+        const itemTop = safeIndex * (itemHeightPx + gapPx);
+        centeredTop = itemTop + itemHeightPx / 2 - window.innerHeight / 2;
 
-    let scrollVh = 0;
+    const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight
+    );
 
-    for (let i = 0; i < index; i++) {
-        scrollVh += i === openIndex ? open : close;
-    }
-
-    return (scrollVh / 100) * window.innerHeight;
+    return Math.min(Math.max(centeredTop, 0), maxScroll);
 }
-
-// export function getPostTop(
-//     index: number,
-//     openIndex: number | null
-// ) {
-//     const isMobile = window.innerWidth < 1024;
-
-//     const close = isMobile ? 33.333 : 27.5;
-//     const open = isMobile ? 100 : 75;
-
-//     let scrollVh = 0;
-
-//     for (let i = 0; i < index; i++) {
-//         scrollVh += i === openIndex ? open : close;
-//     }
-
-//     const vh = isMobile && window.visualViewport
-//         ? window.visualViewport.height
-//         : window.innerHeight;
-
-//     return (scrollVh / 100) * vh;
-// }
-
-// export function getPostTop(
-//     index: number,
-//     openIndex: number | null
-// ) {
-
-//     const isMobile = window.innerWidth < 1024;
-
-//     const close = isMobile ? 33.333 : 27.5;
-//     const open  = isMobile ? window.innerHeight : 75;
-
-//     const effectiveOpenIndex =
-//         openIndex === index ? null : openIndex;
-
-//     let scrollVh = 0;
-
-//     for (let i = 0; i < index; i++) {
-//         scrollVh += i === effectiveOpenIndex ? open : close;
-//     }
-
-//     const calculatedTop = (scrollVh / 100) * window.innerHeight
-
-//     return calculatedTop;
-// }
-
-// export function getPostTop(index: number) {
-//   const posts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
-//   let top = 0;
-
-//   for (let i = 0; i < index; i++) {
-//     const el = posts[i];
-//     if (!el) continue;
-//     top += el.offsetHeight; // altura real del DOM
-//   }
-
-//   return top;
-// }

@@ -34,7 +34,7 @@ export default async function RootLayout({
         <BlurProvider>
           <AboutProvider>
             <PostProvider>
-              <Blur />
+              {/* <Blur /> */}
               <Header />
               <Transition>
                 {children}

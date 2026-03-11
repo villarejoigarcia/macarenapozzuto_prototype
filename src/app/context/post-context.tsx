@@ -23,7 +23,7 @@ export function PostProvider({ children }: { children: ReactNode }) {
     setOpenPost(null);
     setActivePost(null);
     setType('');
-    window.history.pushState({}, '', '/');
+    // window.history.pushState({}, '', '/');
   };
 
   return (

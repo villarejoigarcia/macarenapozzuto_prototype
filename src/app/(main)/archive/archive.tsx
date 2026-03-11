@@ -20,6 +20,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
   const [zoomImg, setZoomImg] = useState<string | null>(null);
   const [visibleSet, setVisibleSet] = useState<Set<string>>(new Set());
   const [scales, setScales] = useState<Record<string, number>>({});
+  const [origins, setOrigins] = useState<Record<string, string>>({});
 
   const [showText, setShowText] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<string | null>(null);
@@ -139,6 +140,76 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     
   }, [zoomImg]);
 
+  function getOriginClassForElement(el: HTMLElement) {
+    const rect = el.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const isMobile = viewportWidth < 1024;
+    const topThreshold = 120;
+
+    const container = el.parentElement;
+    const containerRect = container?.getBoundingClientRect();
+    const style = container ? window.getComputedStyle(container) : null;
+
+    const gridColumns = style?.gridTemplateColumns
+      ? style.gridTemplateColumns.split(' ').filter(Boolean).length
+      : 0;
+
+    const cssColumnCount = style?.columnCount ? Number.parseInt(style.columnCount, 10) : 0;
+    const totalColumns = Math.max(1, gridColumns || cssColumnCount || (isMobile ? 2 : 6));
+
+    const relativeCenterX = containerRect
+      ? rect.left - containerRect.left + rect.width / 2
+      : rect.left + rect.width / 2;
+    const containerWidth = containerRect?.width ?? viewportWidth;
+    const colWidth = containerWidth / totalColumns;
+    const colIndex = Math.min(totalColumns - 1, Math.max(0, Math.floor(relativeCenterX / colWidth)));
+
+    const isTop = rect.top <= topThreshold;
+    const isFirstColumn = colIndex === 0;
+    const isLastColumn = colIndex === totalColumns - 1;
+
+    // En mobile el origen vertical siempre es el centro (50%).
+    if (isMobile) {
+      if (isFirstColumn) return 'origin-[0%_50%]';
+      if (isLastColumn) return 'origin-[100%_50%]';
+      return 'origin-center';
+    }
+
+    if (isTop) {
+      if (isFirstColumn) return 'origin-top-left';
+      if (isLastColumn) return 'origin-top-right';
+      return 'origin-top';
+    }
+
+    if (isFirstColumn) return 'origin-[0%_50%]';
+    if (isLastColumn) return 'origin-[100%_50%]';
+    return 'origin-center';
+  }
+
+  function updateOriginForUrl(url: string) {
+    const el = imgRefs.current.get(url);
+    if (!el) return;
+
+    const nextOrigin = getOriginClassForElement(el);
+    setOrigins((prev) => {
+      if (prev[url] === nextOrigin) return prev;
+      return { ...prev, [url]: nextOrigin };
+    });
+  }
+
+  useEffect(() => {
+    if (!items.length) return;
+
+    const onResize = () => {
+      imgRefs.current.forEach((_, url) => updateOriginForUrl(url));
+    };
+
+    onResize();
+    window.addEventListener('resize', onResize);
+
+    return () => window.removeEventListener('resize', onResize);
+  }, [items]);
+
   useEffect(() => {
     if (zoomImg) {
       const activeImage = items.find(img => {
@@ -178,24 +249,37 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     const windowWidth = window.innerWidth;
     let scale = 1;
 
-    // Clasificar en tres rangos: Extremas, Horizontal, Vertical
-    const isExtreme = naturalHeight >= 1.5 * naturalWidth;
-    const isHorizontal = naturalWidth > naturalHeight;
-    const isVertical = naturalHeight >= naturalWidth;
+    if (!naturalWidth || !naturalHeight) {
+      setScales((prev) => ({ ...prev, [url]: 1 }));
+      return;
+    }
+
+    // Buckets excluyentes por relacion de aspecto (width / height).
+    const ratio = naturalWidth / naturalHeight;
+    const isVerticalExtreme = ratio <= 0.4;
+    const isVerticalLarge = ratio > 0.4 && ratio < 0.67;
+    const isVertical = ratio > 0.67 && ratio < 0.9;
+    const isSquare = ratio >= 0.9 && ratio < 1.2;
+    const isHorizontal = ratio >= 1.2;
 
     if (windowWidth >= 1024) {
       // Desktop
-      if (isExtreme) scale = 1.34;
-      else if (isHorizontal) scale = 3;
-      else if (isVertical) scale = 2;
+      if (isVerticalExtreme) scale = 1.05;
+      else if (isVerticalLarge) scale = 1.34;
+      else if (isVertical) scale = 1.75;
+      else if (isSquare) scale = 1.75;
+      else if (isHorizontal) scale = 2.25;
     } else {
       // Mobile
-      if (isExtreme) scale = 1.25;
-      else if (isHorizontal) scale = 2;
+      if (isVerticalExtreme) scale = 1.25;
+      else if (isVerticalLarge) scale = 1.5;
       else if (isVertical) scale = 2;
+      else if (isSquare) scale = 2;
+      else if (isHorizontal) scale = 2;
     }
 
     setScales((prev) => ({ ...prev, [url]: scale }));
+    updateOriginForUrl(url);
   }
 
   return (
@@ -222,7 +306,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           if (isZoomed) {
             opacityClass = 'opacity-100';
             blurClass = 'blur-none';
-            zIndex = 'z-[9]';
+            zIndex = 'z-50';
           } else if (zoomImg && isVisible) {
             opacityClass = 'opacity-10';
             blurClass = 'blur-none';
@@ -232,29 +316,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
             zIndex = 'z-0 delay-500';
           }
 
-          const columnDesktop = index % 6;
-          const columnMobile = index % 2;
-
-          let originClass = 'origin-center';
-          if (index < 2) originClass = columnMobile === 0 ? 'origin-top-left' : 'origin-top-right';
-          else originClass = columnMobile === 0 ? 'origin-[0%_50%]' : 'origin-[100%_50%]';
-
-          if (window.innerWidth >= 1024) {
-            if (index < 6)
-              originClass =
-                columnDesktop === 0
-                  ? 'origin-top-left'
-                  : columnDesktop === 5
-                    ? 'origin-top-right'
-                    : 'origin-top';
-            else
-              originClass =
-                columnDesktop === 0
-                  ? 'origin-[0%_50%]'
-                  : columnDesktop === 5
-                    ? 'origin-[100%_50%]'
-                    : 'origin-center';
-          }
+          const originClass = origins[mediaUrl] ?? 'origin-center';
 
           const dynamicScale = scales[mediaUrl] ?? 1;
           const mediaSrc = mediaUrl;
@@ -265,7 +327,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
               ref={(el) => {
                 if (el) imgRefs.current.set(mediaSrc, el);
               }}
-              className={`${zIndex} cursor-pointer w-full`}
+              className={`${zIndex} relative cursor-pointer w-full`}
               onClick={() => {
                 if (zoomImg) {
                   setZoomImg(null);
@@ -283,7 +345,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   data-observe
                   src={mediaSrc}
                   onLoad={(e) => handleMediaLoad(e, mediaSrc)}
-                  className={`w-full h-auto transition-all duration-500 ease-in-out position-absolute ${opacityClass} ${blurClass} ${originClass}`}
+                  className={`w-full h-auto transition-all duration-500 ease-in-out ${opacityClass} ${blurClass} ${originClass}`}
                   style={{ transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)' }}
                 />
               ) : (
@@ -295,7 +357,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   muted
                   playsInline
                   onLoadedMetadata={(e) => handleMediaLoad(e, mediaSrc)}
-                  className={`w-full h-auto transition-all duration-500 ease-in-out position-absolute ${opacityClass} ${blurClass} ${originClass}`}
+                  className={`w-full h-auto transition-all duration-500 ease-in-out ${opacityClass} ${blurClass} ${originClass}`}
                   style={{ transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)' }}
                 />
               )}
@@ -304,7 +366,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         })}
       </div>
 
-      <p className={`w-full text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+      <p className={`lg:w-full w-[75%] text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
         {lastTitle}
       </p>
     </>
