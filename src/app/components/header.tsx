@@ -25,7 +25,7 @@ export default function Header() {
           href="/"
           id="home"
           onClick={close}
-          className={`cursor-pointer after:content-[','] transition duration-500
+          className={`cursor-pointer after:content-[','] transition-opactiy duration-500
             ${isProjects && !isOpen ? 'opacity-100' : 'opacity-33'}`}
         >
           Projects
@@ -34,7 +34,7 @@ export default function Header() {
         {/* about */}
         <button
           onClick={isOpen ? close : open}
-          className={`cursor-pointer after:content-[','] transition duration-500
+          className={`cursor-pointer after:content-[','] transition-opactiy duration-500
             ${isOpen ? 'opacity-100' : 'opacity-33'}`}
         >
           About
@@ -44,7 +44,7 @@ export default function Header() {
         <FadeLink
           href="/archive"
           onClick={close}
-          className={`cursor-pointer transition duration-500
+          className={`cursor-pointer transition-opactiy duration-500
             ${isArchive && !isOpen ? 'opacity-100' : 'opacity-33'}`}
         >
           Archive

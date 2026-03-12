@@ -12,6 +12,8 @@ export default function Blur() {
       onClick={() => {
         if (type === 'single') {
           setType('');
+        } else if (type === 'about') {
+          setType('');
         }
       }}
     />

@@ -4,6 +4,7 @@ import { shuffle } from './functions/shuffle';
 import { useEffect, useRef, useState } from 'react';
 import { scrollArchive } from './functions/scroll-archive';
 import { useBlur } from '../../context/blur-context';
+import Imprint from '../../components/imprint';
 
 type ImageItem = {
   asset: { url: string };
@@ -387,9 +388,14 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         })}
       </div>
 
-      <p className={`lg:w-full w-[66.67%] text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+      <p id='archive-caption'
+        className={`w-full text-center py-(--kv) lg:px-0 px-[calc(100vw/6)] fixed left-[50vw] translate-x-[-50%] bottom-0 z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
         {lastTitle}
       </p>
+
+      <div className='p-(--kv) pt-(--lh)'>
+        <Imprint/>
+      </div>
     </>
   );
 } 

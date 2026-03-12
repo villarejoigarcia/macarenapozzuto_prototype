@@ -483,7 +483,7 @@ function PostItem({
             {/* description */}
 
             <div
-                className={`single-nav lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-900 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] pointer-events-none ${(!isAboutOpen && isExpanded && isActive) || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') ? 'active' : ''}`}
+                className={`single-nav lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-1000 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] pointer-events-none ${(!isAboutOpen && isExpanded && isActive) || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') ? 'active' : ''}`}
                 onClick={() => {
                     if (type === 'single') {
                         setType('');
@@ -498,38 +498,53 @@ function PostItem({
 
 
 
-                <div className={`lg:flex-[1.67] transition-opacity duration-1000 pointer-events-none ${(type === 'single') ? 'opacity-100' : 'opacity-0'}`}>
+                <div className={`lg:flex-[1.67] transition-opacity duration-500 pointer-events-none ${(type === 'single') ? 'opacity-100' : 'opacity-0'}`}>
                     <div className='lg:pr-[25%]'>
+                        
                         <div className='flex gap-1'>
-                            {(post.categories?.length > 0 || post.year) && (
-                                <div className='lg:mb-(--lh) mb-(--kv) flex'>
-                                    {post.categories?.map((cat: { title: string }) => (
-                                        <p key={cat.title} className="pr-[.2em] after:content-[',']">
-                                            {cat.title}
-                                        </p>
-                                    ))}
+                            <div className='mb-(--lh) flex'>
+                                {post.categories?.map((cat: { title: string }) => (
+                                    <p key={cat.title} className="pr-[.2em] after:content-[',']">
+                                        {cat.title}
+                                    </p>
+                                ))}
 
-                                    {post.year && (
-                                        <p className="pr-[3px]">
-                                            {post.year}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                {post.year && (
+                                    <p className="pr-[3px]">
+                                        {post.year}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        <PortableText value={post.description} />
+
+                        <div>
                         <PortableText
-                            value={post.credits}
-                            components={{
-                                block: {
-                                    normal: ({ children }) => (
-                                        <p className='py-[1em]'>
-                                            {children}
-                                        </p>
-                                    ),
-                                },
-                            }}
-                        />
+                                value={post.description}
+                                components={{
+                                    block: {
+                                        normal: ({ children }) => (
+                                            <p className='not-last:mb-(--lh)'>
+                                                {children}
+                                            </p>
+                                        ),
+                                    },
+                                }}
+                            />
+                            </div>
+                        <div className='py-(--lh)'>
+                            <PortableText
+                                value={post.credits}
+                                components={{
+                                    block: {
+                                        normal: ({ children }) => (
+                                            <p className=''>
+                                                {children}
+                                            </p>
+                                        ),
+                                    },
+                                }}
+                            />
+                        </div>
 
                     </div>
                 </div>

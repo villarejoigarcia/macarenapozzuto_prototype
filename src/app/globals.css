@@ -154,6 +154,19 @@ header nav button:hover {
   color: white;
 }
 
+#archive-caption::before {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background-color: rgba(12, 12, 12, .167);
+  mask-image: linear-gradient(to top, rgb(12, 12, 12) 33.333%, transparent);
+  height: 5vh;
+  width: 100vw;
+  pointer-events: none;
+}
+
 @media (max-width: 1024px) {
 
   /* #blur {
@@ -191,7 +204,7 @@ header nav button:hover {
   z-index: -1;
   background-color: rgba(12, 12, 12, .167);
   mask-image: linear-gradient(to top, rgb(12, 12, 12) 33.333%, transparent);
-  height: 5vh;
+  height: 10vh;
   -webkit-backdrop-filter: blur(0);
   backdrop-filter: blur(0);
   

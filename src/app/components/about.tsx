@@ -5,6 +5,7 @@ import { PortableTextBlock } from '@sanity/types'
 import { PortableText } from '@portabletext/react'
 import { useBlur } from '../context/blur-context';
 import { useAbout } from '../context/about-context';
+import Imprint from '../components/imprint';
 
 // type AboutData = SanityDocument;
 
@@ -62,64 +63,71 @@ export default function About({ data }: AboutProps) {
 
   return (
 
-    // <section className="z-99 flex flex-col fixed inset-0 w-screen px-[calc(100%/3)] py-(--kv) h-screen gap-(--divider) overflow-scroll">
     <section
       ref={aboutRef}
       className={`
-        z-99 fixed inset-0 w-screen h-dvh lg:px-[calc(100%/3)] px-(--kv) lg:py-(--kv) pb-(--kv) pt-[calc(var(--kv)+var(--lh)*2)] overflow-scroll flex flex-col gap-(--divider) transition duration-500 ease-in-out
+        z-99 fixed inset-0 w-screen h-dvh lg:py-(--kv) pb-(--kv) pt-[calc(var(--kv)+var(--lh)*2)] overflow-scroll transition duration-500 ease-in-out flex flex-col
         ${isOpen
           ? 'opacity-100 pointer-events-auto'
           : 'opacity-0 pointer-events-none'}
           `}
     >
+      <div
+        className='lg:w-1/3 lg:ml-[33.333%] lg:px-0 px-(--kv) flex flex-col items-start gap-(--divider) mb-auto'>
 
-      {data?.bio && (
-        <PortableText value={data?.bio} />
-      )}
+        {data?.bio && (
+          <PortableText value={data?.bio} />
+        )}
 
-      {data?.services && data?.services?.length > 0 && (
-        <div>
-          <h2 className='mb-(--kv)'>Services</h2>
-          <ul>
-            {data?.services.map((s: any) => (
-              <li key={s._id}>{s.title}</li> // puedes reemplazar con el título real de la referencia
-            ))}
-          </ul>
-        </div>
-      )}
+        {data?.services && data?.services?.length > 0 && (
+          <div>
+            <h2 className='mb-(--kv)'>Services</h2>
+            <ul>
+              {data?.services.map((s: any) => (
+                <li key={s._id}>{s.title}</li> 
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {/* {data?.experience && (
+        {/* {data?.experience && (
         <div>
           <h2 className='mb-(--kv)'>Experience</h2>
           <PortableText value={data?.experience} />
         </div>
       )} */}
 
-      {data?.mail && data?.instagram && (
-        <div id="contact">
+        {data?.mail && data?.instagram && (
+          <div id="contact">
 
-          <h2 className='mb-(--kv)'>Contact</h2>
+            <h2 className='mb-(--kv)'>Contact</h2>
 
-          <a
-            href={`mailto:${data?.mail}`}
-            className="block text-(--link) w-fit transition duration-500">
-            {data?.mail}
-          </a>
+            <a
+              href={`mailto:${data?.mail}`}
+              className="block text-(--link) w-fit transition duration-500">
+              {data?.mail}
+            </a>
 
-          <a
-            href={`https://www.instagram.com/${data?.instagram}`} target="_blank"
-            className="block text-(--link) w-fit transition duration-500">
-            @{data?.instagram}
-          </a>
+            <a
+              href={`https://www.instagram.com/${data?.instagram}`} target="_blank"
+              className="block text-(--link) w-fit transition duration-500">
+              @{data?.instagram}
+            </a>
 
-        </div>
-      )}
+          </div>
+        )}
 
-      {data?.imprint && (
+        {/* {data?.imprint && (
         <div className="mt-auto">
           <PortableText value={data?.imprint} />
         </div>
-      )}
+      )} */}
+
+      </div>
+
+      <div className="px-(--kv)">
+        <Imprint/>
+      </div>
 
     </section>
 
