@@ -467,11 +467,11 @@ function PostItem({
             <div
                 ref={textRef}
                 className={`lg:z-100 z-10 relative pointer-events-none flex w-full px-(--kv) transition-all duration-1000 ${isActive && isMobile ? 'py-[10px_5px] h-[30px]' : !isMobile ? 'py-[10px_5px]' : 'h-0 py-0'} ${(type === 'single') && isActive ? 'active' : ''} ${isExpanded ? 'opacity-0' : 'opacity-100'}`}
-                onClick={() => {
-                    if (type === 'single') {
-                        setType('');
-                    }
-                }}
+                // onClick={() => {
+                //     if (type === 'single') {
+                //         setType('');
+                //     }
+                // }}
             >
                 <p className={`flex-1 lg:grow-1 grow-0 mr-[.2em] opacity-0 transition-opacity duration-500 ${opacityClass}`}>{index + 1}.</p>
                 <p className={`flex-1 lg:grow-3 grow-2 opacity-0 transition-opacity duration-500 ${opacityClass}`}>{post.title || ''}</p>
@@ -483,7 +483,7 @@ function PostItem({
             {/* description */}
 
             <div
-                className={`single-nav lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-1000 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] pointer-events-none ${(!isAboutOpen && isExpanded && isActive) || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') ? 'active' : ''}`}
+                className={`single-nav lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-900 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] pointer-events-none ${(!isAboutOpen && isExpanded && isActive) || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') ? 'active' : ''}`}
                 onClick={() => {
                     if (type === 'single') {
                         setType('');
@@ -651,7 +651,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
                         setType((prev) => (prev === 'single' ? '' : 'single'));
                     }}
                 >
-                    {type === 'single' ? 'Info -' : 'Info +'}
+                    {type === 'single' ? 'Info –' : 'Info +'}
                 </button>
 
                 <button

@@ -58,7 +58,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
             return {
               _type: img._type,
               asset: { url: assetUrl },
-              title: img.title || item.title || 'Untitled',
+              title: img.title || item.title || '',
             } as ImageItem;
           })
           .filter(Boolean);
@@ -70,7 +70,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           {
             _type: item.cover._type || 'image',
             asset: { url: item.cover.asset.url },
-            title: item.cover.asset.title || 'Untitled',
+            title: item.cover.asset.title || '',
           } as ImageItem,
         ];
       }
@@ -81,7 +81,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
           {
             _type: item._type || 'image',
             asset: { url: item.asset.url },
-            title: item.title || 'Untitled',
+            title: item.title || '',
           } as ImageItem,
         ];
       }
@@ -127,63 +127,51 @@ export default function ArchiveList({ data }: ArchiveListProps) {
     return () => observer.disconnect();
   }, [items]);
 
-  useEffect(() => {
-    if (zoomImg) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+  // useEffect(() => {
+  //   if (zoomImg) {
+  //     document.body.style.overflow = 'hidden';
+  //   } else {
+  //     document.body.style.overflow = '';
+  //   }
 
-    return () => {
-      document.body.style.overflow = '';
-    };
+  //   return () => {
+  //     document.body.style.overflow = '';
+  //   };
     
-  }, [zoomImg]);
+  // }, [zoomImg]);
+
+  
 
   function getOriginClassForElement(el: HTMLElement) {
     const rect = el.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const isMobile = viewportWidth < 1024;
     const topThreshold = 120;
+    const totalColumns = isMobile ? 2 : 6;
 
-    const container = el.parentElement;
+    const container = document.getElementById('archive');
     const containerRect = container?.getBoundingClientRect();
-    const style = container ? window.getComputedStyle(container) : null;
+    const baseLeft = containerRect?.left ?? 0;
+    const baseWidth = containerRect?.width ?? viewportWidth;
 
-    const gridColumns = style?.gridTemplateColumns
-      ? style.gridTemplateColumns.split(' ').filter(Boolean).length
-      : 0;
-
-    const cssColumnCount = style?.columnCount ? Number.parseInt(style.columnCount, 10) : 0;
-    const totalColumns = Math.max(1, gridColumns || cssColumnCount || (isMobile ? 2 : 6));
-
-    const relativeCenterX = containerRect
-      ? rect.left - containerRect.left + rect.width / 2
-      : rect.left + rect.width / 2;
-    const containerWidth = containerRect?.width ?? viewportWidth;
-    const colWidth = containerWidth / totalColumns;
-    const colIndex = Math.min(totalColumns - 1, Math.max(0, Math.floor(relativeCenterX / colWidth)));
+    // Section-based detection using container coordinates for both layouts.
+    const centerX = rect.left - baseLeft + rect.width / 2;
+    const sectionWidth = Math.max(1, baseWidth / totalColumns);
+    const colIndex = Math.min(totalColumns - 1, Math.max(0, Math.floor(centerX / sectionWidth)));
 
     const isTop = rect.top <= topThreshold;
     const isFirstColumn = colIndex === 0;
     const isLastColumn = colIndex === totalColumns - 1;
 
-    // En mobile el origen vertical siempre es el centro (50%).
-    if (isMobile) {
-      if (isFirstColumn) return 'origin-[0%_50%]';
-      if (isLastColumn) return 'origin-[100%_50%]';
-      return 'origin-center';
-    }
-
     if (isTop) {
-      if (isFirstColumn) return 'origin-top-left';
-      if (isLastColumn) return 'origin-top-right';
-      return 'origin-top';
+      if (isFirstColumn) return '0% 0%';
+      if (isLastColumn) return '100% 0%';
+      return '50% 0%';
     }
 
-    if (isFirstColumn) return 'origin-[0%_50%]';
-    if (isLastColumn) return 'origin-[100%_50%]';
-    return 'origin-center';
+    if (isFirstColumn) return '0% 50%';
+    if (isLastColumn) return '100% 50%';
+    return '50% 50%';
   }
 
   function updateOriginForUrl(url: string) {
@@ -220,7 +208,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         } else {
           return img.asset ? img.asset.url === zoomImg : false;
         }
-      }); const title = activeImage?.title?.trim() || 'Untitled';
+      }); const title = activeImage?.title?.trim() || '';
       setTextValue(zoomImg);
       setLastTitle(title);
       setShowText(true);
@@ -231,6 +219,38 @@ export default function ArchiveList({ data }: ArchiveListProps) {
       });
     }
   }, [zoomImg, items]);
+
+  useEffect(() => {
+    if (!zoomImg) return;
+
+    const closeZoom = () => setZoomImg(null);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const scrollKeys = [
+        'ArrowUp',
+        'ArrowDown',
+        'PageUp',
+        'PageDown',
+        'Home',
+        'End',
+        ' ',
+      ];
+
+      if (scrollKeys.includes(event.key)) {
+        closeZoom();
+      }
+    };
+
+    window.addEventListener('wheel', closeZoom, { passive: true });
+    window.addEventListener('touchmove', closeZoom, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('wheel', closeZoom);
+      window.removeEventListener('touchmove', closeZoom);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [zoomImg]);
 
   function handleMediaLoad(e: React.SyntheticEvent<HTMLImageElement | HTMLVideoElement, Event>, url: string) {
     let naturalWidth = 0;
@@ -254,7 +274,6 @@ export default function ArchiveList({ data }: ArchiveListProps) {
       return;
     }
 
-    // Buckets excluyentes por relacion de aspecto (width / height).
     const ratio = naturalWidth / naturalHeight;
     const isVerticalExtreme = ratio <= 0.4;
     const isVerticalLarge = ratio > 0.4 && ratio < 0.67;
@@ -284,7 +303,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
 
   return (
     <>
-      <div className="lg:grid lg:grid-cols-6 lg:grid-cols-2 columns-2 gap-0" id='archive'>
+      <div className="lg:grid lg:grid-cols-6 columns-2 gap-0" id='archive'>
         {items.map((media, index) => {
           const mediaUrl =
             media._type === 'image'
@@ -300,23 +319,19 @@ export default function ArchiveList({ data }: ArchiveListProps) {
               : visibleSet.has(media.asset?.url || '');
 
           let opacityClass = 'opacity-0';
-          let blurClass = 'blur-none';
           let zIndex = 'z-0 delay-0';
 
           if (isZoomed) {
             opacityClass = 'opacity-100';
-            blurClass = 'blur-none';
-            zIndex = 'z-50';
+            zIndex = 'z-20';
           } else if (zoomImg && isVisible) {
             opacityClass = 'opacity-10';
-            blurClass = 'blur-none';
           } else if (!zoomImg && isVisible) {
             opacityClass = 'opacity-100';
-            blurClass = 'blur-none';
             zIndex = 'z-0 delay-500';
           }
 
-          const originClass = origins[mediaUrl] ?? 'origin-center';
+          const transformOrigin = origins[mediaUrl] ?? 'center center';
 
           const dynamicScale = scales[mediaUrl] ?? 1;
           const mediaSrc = mediaUrl;
@@ -345,8 +360,11 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   data-observe
                   src={mediaSrc}
                   onLoad={(e) => handleMediaLoad(e, mediaSrc)}
-                  className={`w-full h-auto transition-all duration-500 ease-in-out ${opacityClass} ${blurClass} ${originClass}`}
-                  style={{ transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)' }}
+                  className={`w-full h-auto transition-all duration-500 will-change-transform ${opacityClass}`}
+                  style={{
+                    transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)',
+                    transformOrigin,
+                  }}
                 />
               ) : (
                 <video
@@ -357,8 +375,11 @@ export default function ArchiveList({ data }: ArchiveListProps) {
                   muted
                   playsInline
                   onLoadedMetadata={(e) => handleMediaLoad(e, mediaSrc)}
-                  className={`w-full h-auto transition-all duration-500 ease-in-out ${opacityClass} ${blurClass} ${originClass}`}
-                  style={{ transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)' }}
+                  className={`w-full h-auto transition-all duration-500 ${opacityClass}`}
+                  style={{
+                    transform: isZoomed ? `scale(${dynamicScale})` : 'scale(1)',
+                    transformOrigin,
+                  }}
                 />
               )}
             </div>
@@ -366,7 +387,7 @@ export default function ArchiveList({ data }: ArchiveListProps) {
         })}
       </div>
 
-      <p className={`lg:w-full w-[75%] text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+      <p className={`lg:w-full w-[66.67%] text-center px-(--kv) fixed left-[50vw] translate-x-[-50%] bottom-(--kv) z-100 pointer-events-none transition-opacity duration-500 ${showText ? 'opacity-100' : 'opacity-0'}`}>
         {lastTitle}
       </p>
     </>
