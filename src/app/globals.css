@@ -5,6 +5,7 @@
   --background: #0c0c0c;
   --foreground: #171717;
   --link: #b8b8b8;
+  --blur: rgba(12, 12, 12, .167);
 }
 
 @theme inline {
@@ -17,6 +18,7 @@
   --divider: calc(var(--lh)*3);
   --link: var(--link);
   --caption: 31.6px;
+  --blur: var(--blur);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -96,8 +98,7 @@ body {
   opacity: 0;
 } */
 
-#blur.about::before,
-.media-mobile {
+#blur.about::before {
   -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
   background-color: rgba(12, 12, 12, .666);
@@ -182,7 +183,7 @@ header nav button:hover {
     background-color: rgba(11, 11, 11, .25);
   } */
 
-  #single-nav::before {
+  .single-nav::before {
   content: "";
   position: fixed;
   bottom: 0;
@@ -201,7 +202,7 @@ header nav button:hover {
   
 }
 
-#single-nav.active::before {
+.single-nav.active::before {
   -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
   background-color: rgba(12, 12, 12, .666);

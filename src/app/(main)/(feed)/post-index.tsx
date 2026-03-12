@@ -420,39 +420,45 @@ function PostItem({
                 <AnimatePresence>
                     {isMobile && isVisible && (
                         <motion.div
-                            className={`media-mobile z-25 fixed top-0 left-0 h-dvh w-screen overflow-scroll flex flex-col gap-[3px] ${isVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                            className={`z-25 fixed top-0 left-0 h-dvh w-screen overflow-scroll backdrop-blur-lg bg-(--blur) ${isVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.75 }}
+                            animate={{ opacity: 1, transition: { duration: 0.66 } }}
+                            exit={{ opacity: 0, transition: { duration: 0.66, when: 'afterChildren', delay: .66 } }}
                             onClick={() => {
                                 setIsVisible(false);
                             }}
                         >
-                            {mediaItems.map((media: any, i: number) => {
-                                if (media?._type === 'file') {
+                            <motion.div
+                                className={`flex flex-col gap-[3px]`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1, transition: { duration: 0.66, delay: 0.66 } }}
+                                exit={{ opacity: 0, transition: { duration: 0.66 } }}
+                            >
+                                {mediaItems.map((media: any, i: number) => {
+                                    if (media?._type === 'file') {
+                                        return (
+                                            <video
+                                                key={`mobile-video-${i}`}
+                                                src={getMediaUrl(media)}
+                                                loop
+                                                autoPlay
+                                                muted
+                                                playsInline
+                                                className="w-auto h-full object-contain"
+                                            />
+                                        );
+                                    }
+
                                     return (
-                                        <video
-                                            key={`mobile-video-${i}`}
+                                        <img
+                                            key={`mobile-image-${i}`}
                                             src={getMediaUrl(media)}
-                                            loop
-                                            autoPlay
-                                            muted
-                                            playsInline
+                                            alt={post.title}
                                             className="w-auto h-full object-contain"
                                         />
                                     );
-                                }
-
-                                return (
-                                    <img
-                                        key={`mobile-image-${i}`}
-                                        src={getMediaUrl(media)}
-                                        alt={post.title}
-                                        className="w-auto h-full object-contain"
-                                    />
-                                );
-                            })}
+                                })}
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -477,8 +483,7 @@ function PostItem({
             {/* description */}
 
             <div
-            id='single-nav'
-                className={`pointer-events-none lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-1000 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] ${!isAboutOpen && isExpanded && isActive || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') && isActive ? 'active' : ''}`}
+                className={`single-nav lg:pl-0 pl-(--kv) py-(--kv) pr-(--kv) transition-opacity duration-1000 fixed lg:left-[calc(100vw/3)] lg:top-0 top-auto bottom-0 lg:w-[calc(100vw/1.5)] w-screen flex lg:flex-row flex-col-reverse justify-end z-[51] pointer-events-none ${(!isAboutOpen && isExpanded && isActive) || isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${(type === 'single') ? 'active' : ''}`}
                 onClick={() => {
                     if (type === 'single') {
                         setType('');
@@ -493,7 +498,7 @@ function PostItem({
 
 
 
-                <div className={`lg:flex-[1.67] transition-opacity duration-500 pointer-events-none ${(type === 'single') && isActive ? 'opacity-100' : 'opacity-0'}`}>
+                <div className={`lg:flex-[1.67] transition-opacity duration-1000 pointer-events-none ${(type === 'single') ? 'opacity-100' : 'opacity-0'}`}>
                     <div className='lg:pr-[25%]'>
                         <div className='flex gap-1'>
                             {(post.categories?.length > 0 || post.year) && (
