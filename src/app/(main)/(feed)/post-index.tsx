@@ -36,6 +36,8 @@ interface PostItemProps {
 }
 
 const cssEase = Beizer(0.42, 0, 0.58, 1);
+// const cssEase = Beizer(0.25, 0.1, 0.25, 1);
+const beizerClass = 'ease-[cubic-bezier(0.42,0,0.58,1)]';
 
 function getMediaUrl(media: any) {
     if (!media) return '';
@@ -266,6 +268,7 @@ function PostItem({
             onExpand(false);
             setType('');
             //   window.history.pushState({}, '', '/');
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             const collapsedTarget = getPostTop(index, null);
             await animatePageScrollTo(collapsedTarget, duration);
 
@@ -275,6 +278,7 @@ function PostItem({
             onExpand(true);
             onActivate(index);
             //   window.history.pushState({}, '', `/${post.slug?.current || ''}`);
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             const target = getPostTop(index, index);
             await animatePageScrollTo(target, duration);
         }
@@ -318,7 +322,7 @@ function PostItem({
 
     return (
         <div
-            className={`w-full relative transition-height ${classDuration} ease-[cubic-bezier(0.42,0,0.58,1)] ${desktopHeightClass}`}
+            className={`w-full relative transition-height ${classDuration} ${beizerClass} ${desktopHeightClass}`}
         >
             <div
                 ref={ref}
@@ -348,7 +352,7 @@ function PostItem({
                     onMouseLeave={() => {
                         setIsHover(false);
                         if (isExpanded) return;
-                        // resetCurrentScroll();
+                        resetCurrentScroll();
                     }}
                 >
                     {mediaItems[0] && mediaItems[0]?._type === 'file' ? (
@@ -628,7 +632,7 @@ export default function PostIndex({ posts }: PostIndexProps) {
         <>
             <section
                 ref={wrapperRef}
-                className={`wrapper flex flex-col gap-[5px] items-center transition-padding duration-1000 ease-[cubic-bezier(0.42,0,0.58,1)] ${isExpanded ? 'lg:pb-[15vh]' : 'lg:pb-[25px]'}`}
+                className={`wrapper flex flex-col gap-[5px] items-center transition-padding duration-1000 ${beizerClass} ${isExpanded ? 'lg:pb-[15vh]' : 'lg:pb-[25px]'}`}
                 id="feed"
             >
                 {posts.map((post, idx) => (
